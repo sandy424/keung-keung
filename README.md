@@ -5,3 +5,5 @@
 
 - **React + Vite**: 빠른 개발 환경과 HMR 지원
 - **ESLint**: 코드 품질 관리
+- **Javascript
+- **완성 후 추후에 Typescript로 전환
