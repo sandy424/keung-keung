@@ -1,14 +1,20 @@
-import Header from './components/Header';
-import style from './App.module.css';
+import {Routes, Route, Navigate} from 'react-router-dom';
 
-function App() {
+import Home from './pages/Home';
+
+export default function App() {
 
   return (
-    <div className={style.container}>
-      <Header/>
-    
+    <div style={styles.container}>
+      <Routes>
+        <Route path='/' element={<Home/>}/>
+      </Routes>
     </div>
   )
 }
-
-export default App;
+const styles = {
+  container: {
+    width: "500px",
+    margin: "0 auto",
+  }
+}
