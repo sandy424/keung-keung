@@ -1,5 +1,8 @@
 import { useEffect } from "react";
-import Header from "../components/Header";
+import style from '../css/Home.module.css';
+import { GiFireBowl } from "react-icons/gi";
+import { FaRegHeart } from "react-icons/fa6";
+import { IoPersonCircleSharp } from "react-icons/io5";
 
 function Home() {
 
@@ -24,11 +27,25 @@ function Home() {
   }, []); // 처음 렌더링 한 번만 실행
 
   return (
-    <div style={{height: "100%"}}>
+    <div className={style.container}>
       <div
         id="map"
-        style={{ width: "100%", height: "100%" }}
-      />
+        style={{ width: "100%", height: "100%" }}/>
+      
+      <div className={style.menu}>
+        <button className={style.menuIcon}>
+          <GiFireBowl size={30}/>
+          <div>핫플레이스</div>
+        </button>
+        <button className={style.menuIcon}>
+          <FaRegHeart size={30}/>
+          <div>저장</div>
+        </button>
+        <button className={style.menuIcon}>
+          <IoPersonCircleSharp size={35}/>
+          <div>마이페이지</div>
+        </button>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,6 @@ import style from './css/App.module.css';
 import Home from './pages/Home';
 
 import Header from './components/Header';
-import BottomBar from './components/BottomBar';
 
 export default function App() {
 
@@ -17,8 +16,6 @@ export default function App() {
           <Route path='/' element={<Home/>}/>
         </Routes>
       </main>
-
-      <BottomBar/>
     </div>
   )
 }
