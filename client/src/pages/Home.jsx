@@ -24,11 +24,10 @@ function Home() {
   }, []); // 처음 렌더링 한 번만 실행
 
   return (
-    <div>
-      <Header />
+    <div style={{height: "100%"}}>
       <div
         id="map"
-        style={{ width: "700px", height: "750px" }}
+        style={{ width: "100%", height: "100%" }}
       />
     </div>
   );
