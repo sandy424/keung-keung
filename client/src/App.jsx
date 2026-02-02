@@ -14,7 +14,7 @@ export default function App() {
 }
 const styles = {
   container: {
-    width: "500px",
+    width: "700px",
     margin: "0 auto",
   }
 }

@@ -28,7 +28,7 @@ function Home() {
       <Header />
       <div
         id="map"
-        style={{ width: "500px", height: "500px" }}
+        style={{ width: "700px", height: "750px" }}
       />
     </div>
   );
