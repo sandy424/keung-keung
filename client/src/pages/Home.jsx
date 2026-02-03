@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect,useRef } from "react";
 import style from '../css/Home.module.css';
 import FireIcon from '../assets/icons/Fire.svg?react';
 import HeartIcon from '../assets/icons/Heart.svg?react';
@@ -6,19 +6,19 @@ import ProfileIcon from '../assets/icons/Profile.svg?react';
 
 function Home() {
 
+  const mapRef = useRef(null);
+
   useEffect(() => {
     const { naver } = window;
 
-    if (!naver) return; // 네이버 스크립트 로드 전 보호 코드
+    if (!naver?.maps || !mapRef.current) return; // 네이버 스크립트 로드 전 보호 코드
 
     const location = new naver.maps.LatLng(35.1795543, 129.0756416);
 
-    const mapOptions = {
+    const map = new naver.maps.Map(mapRef.current, {
       center: location,
       zoom: 17,
-    };
-
-    const map = new naver.maps.Map("map", mapOptions);
+    });
 
     new naver.maps.Marker({
       map,
@@ -29,7 +29,7 @@ function Home() {
   return (
     <div className={style.container}>
       <div
-        id="map"
+        ref={mapRef}
         style={{ width: "100%", height: "100%" }}/>
       
       <div className={style.menu}>
