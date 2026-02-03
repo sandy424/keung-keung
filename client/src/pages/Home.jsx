@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import style from '../css/Home.module.css';
-import { GiFireBowl } from "react-icons/gi";
-import { FaRegHeart } from "react-icons/fa6";
-import { IoPersonCircleSharp } from "react-icons/io5";
+import FireIcon from '../assets/icons/Fire.svg?react';
+import HeartIcon from '../assets/icons/Heart.svg?react';
+import ProfileIcon from '../assets/icons/Profile.svg?react';
 
 function Home() {
 
@@ -34,15 +34,15 @@ function Home() {
       
       <div className={style.menu}>
         <button className={style.menuIcon}>
-          <GiFireBowl size={30}/>
+          <FireIcon width={35} height={35} />
           <div>핫플레이스</div>
         </button>
         <button className={style.menuIcon}>
-          <FaRegHeart size={30}/>
+          <HeartIcon width={30} height={30} />
           <div>저장</div>
         </button>
         <button className={style.menuIcon}>
-          <IoPersonCircleSharp size={35}/>
+          <ProfileIcon width={35} height={35}/>
           <div>마이페이지</div>
         </button>
       </div>

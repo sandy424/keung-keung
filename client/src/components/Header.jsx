@@ -1,5 +1,6 @@
 import style from '../css/Header.module.css';
-import {FaSearch} from 'react-icons/fa';
+import SearchIcon from '../assets/icons/Search.svg?react';
+import LogoIcon from '../assets/icons/Logo.svg?react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
@@ -8,11 +9,14 @@ export default function Header() {
 
     return(
         <div className={style.header}>
-            <h3 onClick={() => nav("/")}>킁킁</h3>
+            <button onClick={() => nav("/")}>
+                <LogoIcon width={50} height={30} />
+            </button>
+            
             <div className={style.search}>
                 <input type="text" placeholder='좋아하는 디저트를 검색해보세요.' />
                 <button className={style.iconBtn}>
-                    <FaSearch size={20}/>
+                    <SearchIcon width={24} height={24} />
                 </button>
             </div>
         </div>
