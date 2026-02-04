@@ -1,8 +1,7 @@
 import { useEffect,useRef } from "react";
 import style from '../css/Home.module.css';
-import FireIcon from '../assets/icons/Fire.svg?react';
-import HeartIcon from '../assets/icons/Heart.svg?react';
-import ProfileIcon from '../assets/icons/Profile.svg?react';
+
+import Bottombar from "../components/Bottombar";
 
 function Home() {
 
@@ -31,21 +30,8 @@ function Home() {
       <div
         ref={mapRef}
         style={{ width: "100%", height: "100%" }}/>
-      
-      <div className={style.menu}>
-        <button className={style.menuIcon}>
-          <FireIcon width={35} height={35} />
-          <div>핫플레이스</div>
-        </button>
-        <button className={style.menuIcon}>
-          <HeartIcon width={30} height={30} />
-          <div>저장</div>
-        </button>
-        <button className={style.menuIcon}>
-          <ProfileIcon width={35} height={35}/>
-          <div>마이페이지</div>
-        </button>
-      </div>
+
+      <Bottombar />
     </div>
   );
 }
