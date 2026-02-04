@@ -25,11 +25,31 @@
 
 .category {
     position: absolute;
-    left: 80px;
+    left: 20px;
+    top: 40px;
 }
 .category button {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border: none;
     border-radius: 50%;
+    box-shadow: 0 0 9px #555555;
+    background-color: lightgray;
+    cursor: pointer;
+}
+.categoryli {
+    border: none;
+    border-radius: 20px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background-color: rgb(255, 208, 214);
+    padding: 24px;
+}
+.categoryli li {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
 }
