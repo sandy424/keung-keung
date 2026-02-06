@@ -1,12 +1,28 @@
-import { useEffect,useRef } from "react";
+import { useEffect,useRef, useState } from "react";
 import style from '../css/Home.module.css';
 
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
 
 function Home() {
-
+  const [stores, setStores] = useState([]);
   const mapRef = useRef(null);
+  const markerRef = useRef([]);
+
+  const fetchData = async() => {
+    try {
+      const response = await fetch("/data/db.json");
+      const json = await response.json();
+      setStores(json);
+    } catch(error) {
+      console.log("데이터 불러오기 실패", error);
+    }
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const { naver } = window;
@@ -15,16 +31,18 @@ function Home() {
 
     const location = new naver.maps.LatLng(35.1796, 129.0756);
 
-    const map = new naver.maps.Map(mapRef.current, {
+    mapRef.current = new naver.maps.Map(mapRef.current, {
       center: location,
       zoom: 15,
     });
-
-    new naver.maps.Marker({
-      map,
-      position: location,
-    });
   }, []); // 처음 렌더링 한 번만 실행
+
+  useEffect(() => {
+    if(!mapRef.current || stores.length === 0) return;
+    
+    markerRef.curr
+    stores.forEach
+  })
   
   return (
     <div className={style.container}>
