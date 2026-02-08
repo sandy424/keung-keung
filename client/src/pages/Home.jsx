@@ -12,6 +12,7 @@ function Home() {
   const mapRef = useRef(null);
   const markerRef = useRef([]);
 
+  //데이터 불러오기
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setStores(data.stores);
@@ -24,7 +25,7 @@ function Home() {
     const location = new naver.maps.LatLng(35.1796, 129.0756);
     mapRef.current = new naver.maps.Map(mapDivRef.current, {
       center: location,
-      zoom: 15,
+      zoom: 12,
     });
   }, []); // 처음 렌더링 한 번만 실행
 

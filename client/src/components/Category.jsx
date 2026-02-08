@@ -18,13 +18,13 @@ function Category(){
 
             {category && (
                 <ul className={style.categoryli}>
-                    {categories.map((cat) => (
+                    {categories.map((kind) => (
                         <li
-                            key={cat}
-                            onClick={() => setSelect(cat)}
-                            className={select === cat ? style.select : ""}>
+                            key={kind}
+                            onClick={() => setSelect(kind)}
+                            className={select === kind ? style.select : ""}>
                             
-                            {cat}
+                            {kind}
                         </li>
                     ))}
                 </ul>
