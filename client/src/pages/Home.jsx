@@ -7,6 +7,8 @@ import Category from "../components/Category";
 
 function Home() {
   const [stores, setStores] = useState([]);
+  const [allStores, setAllStores] = useState([]);
+  const [selected, setSelected] = useState("전체");
 
   const mapDivRef = useRef(null);
   const mapRef = useRef(null);
@@ -15,9 +17,11 @@ function Home() {
   //데이터 불러오기
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    setAllStores(data.stores);
     setStores(data.stores);
   }, []);
-
+  
+  // 지도 불러오기
   useEffect(() => {
     const { naver } = window;
     if (!naver?.maps || !mapDivRef.current) return; // 네이버 스크립트 로드 전 보호 코드
@@ -45,12 +49,31 @@ function Home() {
     });
   }, [stores]);
   
+  //카테고리 필터
+  useEffect(() => {
+    if (selected === "전체") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStores(allStores);
+    }else {
+      setStores(
+        allStores.filter(store => store.category.includes(selected))
+      );
+    }
+  }, [selected, allStores]);
+
+  const handleSelected = (category) => {
+    setSelected(category);
+  }
+
   return (
     <div className={style.container}>
       <div
         ref={mapDivRef}
         style={{ width: "100%", height: "100%" }}/>
-      <Category />
+
+      <Category 
+      selected={selected}
+      onSelect={handleSelected}/>
       <Bottombar />
     </div>
   );
