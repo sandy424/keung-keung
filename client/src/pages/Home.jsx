@@ -4,11 +4,13 @@ import data from '../data/db.json';
 
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
+import StoreCard from "../components/StoreCard";
 
 function Home() {
   const [stores, setStores] = useState([]);
   const [allStores, setAllStores] = useState([]);
   const [selected, setSelected] = useState("전체");
+  const [selectedStore, setSelectedStore] = useState(null);
 
   const mapDivRef = useRef(null);
   const mapRef = useRef(null);
@@ -45,6 +47,10 @@ function Home() {
         position: new window.naver.maps.LatLng(store.lat, store.lng),
         map: mapRef.current,
       });
+      // 마커 클릭 -> 선택된 가게
+      window.naver.maps.Event.addListener(marker, "click", () => {
+        setSelectedStore(store);
+      })
       markerRef.current.push(marker);
     });
   }, [stores]);
@@ -70,7 +76,10 @@ function Home() {
       <div
         ref={mapDivRef}
         style={{ width: "100%", height: "100%" }}/>
-
+        
+      <StoreCard 
+      store={selectedStore}
+      onClose={() => setSelectedStore(null)}/>
       <Category 
       selected={selected}
       onSelect={handleSelected}/>
