@@ -6,17 +6,10 @@ function StoreCard({ store, onClose }) {
   return (
     <div className={style.card}>
       <div className={style.header}>
-        <h4>{store.name}</h4>
-        <button onClick={onClose}>✕</button>
+        <p>{store.category}</p>
+        <h2>{store.name}</h2>
       </div>
-
-      <p>{store.address}</p>
-
-      <div className={style.tags}>
-        {store.categories.map(cat => (
-          <span key={cat}>{cat}</span>
-        ))}
-      </div>
+      <button className={style.closeBtn} onClick={onClose}>✕</button>
     </div>
   );
 }

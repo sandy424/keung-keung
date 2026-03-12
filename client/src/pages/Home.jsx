@@ -52,6 +52,7 @@ function Home() {
         setSelectedStore(store);
       })
       markerRef.current.push(marker);
+      
     });
   }, [stores]);
   
