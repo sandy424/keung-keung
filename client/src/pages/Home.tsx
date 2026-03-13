@@ -1,26 +1,51 @@
 import { useEffect,useRef, useState } from "react";
 import style from '../css/Home.module.css';
 import data from '../data/db.json';
+import {Store} from '../types/store';
 
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
 import StoreCard from "../components/StoreCard";
 
+// 네이버 맵 타입 선언
+declare global {
+  interface Window {
+    naver: {
+      maps: {
+        Map: any;
+        LatLng: any;
+        Marker: any;
+        Event: any;
+      };
+    };
+  }
+}
+
 function Home() {
-  const [stores, setStores] = useState([]);
-  const [allStores, setAllStores] = useState([]);
+  const [stores, setStores] = useState<Store[]>([]);
+  // 카테고리 useState 설정
+  const [allStores, setAllStores] = useState<Store[]>([]);
   const [selected, setSelected] = useState("전체");
-  const [selectedStore, setSelectedStore] = useState(null);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
 
   const mapDivRef = useRef(null);
   const mapRef = useRef(null);
-  const markerRef = useRef([]);
+  const markerRef = useRef<any[]>([]);
 
   //데이터 불러오기
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setAllStores(data.stores);
-    setStores(data.stores);
+    const parsedStores: Store[] = data.stores.map(store => ({
+      id: parseInt(store.id, 10),
+      name: store.name,
+      category: Array.isArray(store.category) ? store.category.join(', ') : store.category,
+      address: store.address,
+      tel: store.tel || 0, // 기본값 설정
+      lat: parseFloat(store.lat),
+      lng: parseFloat(store.lng),
+      rating: parseFloat(store.rating),
+    }));
+    setAllStores(parsedStores);
+    setStores(parsedStores);
   }, []);
   
   // 지도 불러오기
@@ -68,7 +93,7 @@ function Home() {
     }
   }, [selected, allStores]);
 
-  const handleSelected = (category) => {
+  const handleSelected = (category: string) => {
     setSelected(category);
   }
 
