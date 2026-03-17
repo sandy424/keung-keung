@@ -9,13 +9,14 @@
   padding: 32px;
   box-shadow: 0 2px 8px gray;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
 }
 
 .header {
   display: flex;
-  flex-direction: column;
-  
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 .header p {
   font-size: 15px;
@@ -25,6 +26,21 @@
 .header h2 {
   margin-top: 15px;
 }
+.secondHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.secondHeader button {
+  height: 35px;
+  width: 35px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 
 .closeBtn {
   width: 25px;
@@ -32,6 +48,7 @@
   border: none;
   background-color: transparent;
   font-size: 20px;
+  cursor: pointer;
 }
 
 .star {
@@ -42,7 +59,35 @@
 }
 
 .star span {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: #333;
+}
+
+.explain {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 15px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+.detailpage {
+  display: flex;
+  justify-content: center;
+}
+.detailpage button {
+  width: 130px;
+  height: 38px;
+  border: none;
+  background-color: #FFEDDB;
+  color: #FF8000;
+  font-size: 15px;
+  border-radius: 20px;
+  padding: 0;
+  cursor: pointer;
 }
