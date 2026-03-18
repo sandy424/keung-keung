@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import style from "../css/Storecard.module.css";
 import RateStar from "../assets/icons/RateStar.svg?react";
 import SaveHeart from '../assets/icons/SaveHeart.svg?react';
 
 function StoreCard({ store, onClose }) {
   const [saved, setSaved] = useState(false);
+  const nav = useNavigate();
 
   if (!store) return null;
 
@@ -57,7 +59,7 @@ function StoreCard({ store, onClose }) {
         <div className={style.progressLabel}>{Math.round((store.rating / 5) * 100)}%</div>
       </div>
       <div className={style.detailpage}>
-        <button >상세페이지</button>
+        <button onClick={() => nav("/detail")}>상세페이지</button>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import Header from './components/Header';
 import Hotplace from './pages/Hotplace';
 import Saved from './pages/Saved';
 import Mypage from './pages/Mypage';
+import Detail  from './pages/Detail';
 
 export default function App() {
 
@@ -19,6 +20,7 @@ export default function App() {
           <Route path='/hotplace' element={<Hotplace/>}/>
           <Route path='/saved' element={<Saved/>}/>
           <Route path='/mypage' element={<Mypage/>} />
+          <Route path='/detail' element={<Detail/>}/>
         </Routes>
       </main>
     </div>
