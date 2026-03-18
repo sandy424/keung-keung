@@ -2,11 +2,10 @@ import {Routes, Route} from 'react-router-dom';
 import style from './css/App.module.css';
 
 import Home from './pages/Home';
-
 import Header from './components/Header';
 import Hotplace from './pages/Hotplace';
 import Saved from './pages/Saved';
-import Mypage from './pages/mypage';
+import Mypage from './pages/Mypage';
 
 export default function App() {
 
