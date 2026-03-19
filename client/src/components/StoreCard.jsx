@@ -59,7 +59,7 @@ function StoreCard({ store, onClose }) {
         <div className={style.progressLabel}>{Math.round((store.rating / 5) * 100)}%</div>
       </div>
       <div className={style.detailpage}>
-        <button onClick={() => nav("/detail")}>상세페이지</button>
+        <button onClick={() => nav("/detail", {state: {store}})}>상세페이지</button>
       </div>
     </div>
   );

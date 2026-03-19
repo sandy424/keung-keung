@@ -19,7 +19,7 @@ export default function App() {
           <Route path='/hotplace' element={<Hotplace/>}/>
           <Route path='/saved' element={<Saved/>}/>
           <Route path='/mypage' element={<Mypage/>} />
-          <Route path='/detail' element={<Detail/>}/>
+          <Route path='/detail' element={<Detail/>} />
         </Routes>
       </main>
     </div>
