@@ -3,7 +3,7 @@ import SearchIcon from '../assets/icons/Search.svg?react';
 import LogoIcon from '../assets/icons/Logo.svg?react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Header({inputValue, onInputChange, onSearch}) {
+export default function Header({inputValue, onInputChange, onSearch, onClear, query}) {
     
     const nav = useNavigate();
 
@@ -21,7 +21,13 @@ export default function Header({inputValue, onInputChange, onSearch}) {
             <div className={style.search}>
                 <input type="text" value={inputValue} placeholder='좋아하는 디저트를 검색해보세요.' 
                 onChange={(e) => {onInputChange(e.target.value)}}
-                onKeyDown={(e) => e.key === "Enter" && onSearch()}/>
+                onKeyDown={(e) => e.key === "Enter" && onSearch()}
+                />
+                {query && (
+                    <button onClick={onClear}>
+                        ✕
+                    </button>
+                )}
                 <button className={style.iconBtn} onClick={onSearch}>
                     <SearchIcon width={24} height={24} />
                 </button>

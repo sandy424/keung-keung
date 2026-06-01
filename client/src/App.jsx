@@ -14,13 +14,18 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [query, setQuery] = useState("");
 
+  // 검색창 버튼 기능
   const handleSearch = () => {
     setQuery(inputValue);
+  }
+  const handleClear = () => {
+    setInputValue("");
+    setQuery("");
   }
 
   return (
     <div className={style.container}>
-      <Header inputValue={inputValue} onSearch={handleSearch} onInputChange={setInputValue}/>
+      <Header inputValue={inputValue} onSearch={handleSearch} onInputChange={setInputValue} onClear={handleClear} query={query}/>
       <main className={style.content}>
         <Routes>
           <Route path='/' element={<Home query={query}/>} />
