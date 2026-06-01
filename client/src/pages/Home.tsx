@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-function Home() {
+function Home({query}:{query:string}) {
   const [stores, setStores] = useState<Store[]>([]);
   // 카테고리 useState 설정
   const [allStores, setAllStores] = useState<Store[]>([]);
@@ -83,15 +83,18 @@ function Home() {
   
   //카테고리 필터
   useEffect(() => {
-    if (selected === "전체") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStores(allStores);
-    }else {
-      setStores(
-        allStores.filter(store => store.category.includes(selected))
-      );
+    let filtered = allStores;
+
+    if (selected !== "전체") {
+      filtered = filtered.filter(store => store.category.includes(selected));
     }
-  }, [selected, allStores]);
+
+    if (query.trim() !== "") {
+      filtered = filtered.filter(store => store.name.includes(query.trim()));
+    }
+
+    setStores(filtered);
+  }, [selected, allStores, query]);
 
   const handleSelected = (category: string) => {
     setSelected(category);
