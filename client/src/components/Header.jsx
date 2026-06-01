@@ -7,9 +7,14 @@ export default function Header({inputValue, onInputChange, onSearch}) {
     
     const nav = useNavigate();
 
+    const onLogoChange = () => {
+        nav("/");
+        onInputChange("");
+    }
+
     return(
         <div className={style.header}>
-            <button onClick={() => nav("/")}>
+            <button onClick={onLogoChange}>
                 <LogoIcon width={50} height={30} />
             </button>
             
