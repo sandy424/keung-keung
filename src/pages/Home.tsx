@@ -1,6 +1,7 @@
 import { useEffect,useRef, useState } from "react";
 import style from '../css/Home.module.css';
-import data from '../data/db.mjs';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase"; 
 import {Store} from '../types/store';
 
 import Bottombar from "../components/Bottombar";
@@ -34,19 +35,18 @@ function Home({query}:{query:string}) {
 
   //데이터 불러오기
   useEffect(() => {
-    const parsedStores: Store[] = data.stores.map(store => ({
-      id: parseInt(store.id, 10),
-      name: store.name,
-      category: Array.isArray(store.category) ? store.category.join(', ') : store.category,
-      address: store.address,
-      tel: store.tel || 0, // 기본값 설정
-      lat: parseFloat(store.lat),
-      lng: parseFloat(store.lng),
-      rating: parseFloat(store.rating),
+  const fetchStores = async () => {
+    const snapshot = await getDocs(collection(db, "shops"));
+    const parsedStores: Store[] = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data() as Omit<Store, "id">,
     }));
     setAllStores(parsedStores);
     setStores(parsedStores);
-  }, []);
+  };
+
+  fetchStores();
+}, []);
   
   // 지도 불러오기
   useEffect(() => {
