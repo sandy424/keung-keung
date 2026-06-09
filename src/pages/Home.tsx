@@ -1,6 +1,6 @@
 import { useEffect,useRef, useState } from "react";
 import style from '../css/Home.module.css';
-import data from '../data/db.json';
+import data from '../data/db.mjs';
 import {Store} from '../types/store';
 
 import Bottombar from "../components/Bottombar";
