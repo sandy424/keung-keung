@@ -23,6 +23,11 @@ const shops = [
     lat: 35.143449,
     lng: 129.107838,
     avgRating: 4.8,
+    menus: [
+      { name: "딸기 케이크", price: 7500 },
+      { name: "레몬 케이크", price: 6500 },
+      { name: "초코 케이크", price: 7000 },
+    ],
   },
   {
     name: "이앤디스튜디오",
@@ -32,6 +37,10 @@ const shops = [
     lat: 35.155941,
     lng: 129.114189,
     avgRating: 3.6,
+    menus: [
+      { name: "커스텀 케이크", price: 45000 },
+      { name: "미니 케이크", price: 18000 },
+    ],
   },
   {
     name: "오감베이커리",
@@ -41,6 +50,11 @@ const shops = [
     lat: 35.195775,
     lng: 129.10117,
     avgRating: 4.4,
+    menus: [
+      { name: "크루아상", price: 3500 },
+      { name: "식빵", price: 5000 },
+      { name: "단팥빵", price: 2500 },
+    ],
   },
   {
     name: "자연도소금빵",
@@ -50,6 +64,11 @@ const shops = [
     lat: 35.163987,
     lng: 129.171001,
     avgRating: 4.6,
+    menus: [
+      { name: "소금빵", price: 2800 },
+      { name: "버터 소금빵", price: 3200 },
+      { name: "치즈 소금빵", price: 3500 },
+    ],
   },
   {
     name: "연의양과",
@@ -59,6 +78,11 @@ const shops = [
     lat: 35.153847,
     lng: 129.062751,
     avgRating: 4.9,
+    menus: [
+      { name: "에그 타르트", price: 3500 },
+      { name: "피낭시에", price: 2500 },
+      { name: "마들렌", price: 2000 },
+    ],
   },
   {
     name: "바게트 제작소",
@@ -68,6 +92,10 @@ const shops = [
     lat: 35.154654,
     lng: 129.064103,
     avgRating: 4.7,
+    menus: [
+      { name: "바게트", price: 4500 },
+      { name: "캄파뉴", price: 6000 },
+    ],
   },
   {
     name: "고메",
@@ -77,6 +105,11 @@ const shops = [
     lat: 35.154238,
     lng: 129.064808,
     avgRating: 4.8,
+    menus: [
+      { name: "과일 타르트", price: 6500 },
+      { name: "가나슈 타르트", price: 6000 },
+      { name: "시즌 케이크", price: 8000 },
+    ],
   },
   {
     name: "화이트콩",
@@ -86,6 +119,10 @@ const shops = [
     lat: 35.101646,
     lng: 128.977797,
     avgRating: 4.5,
+    menus: [
+      { name: "콩가루 케이크", price: 7000 },
+      { name: "크림치즈 케이크", price: 7500 },
+    ],
   },
   {
     name: "오븐의 온도",
@@ -95,6 +132,11 @@ const shops = [
     lat: 35.156133,
     lng: 129.064566,
     avgRating: 4.3,
+    menus: [
+      { name: "버터쿠키", price: 3000 },
+      { name: "초코칩쿠키", price: 3000 },
+      { name: "아몬드 튀일", price: 4000 },
+    ],
   },
   {
     name: "젤라송 부산송도점",
@@ -104,6 +146,10 @@ const shops = [
     lat: 35.076386,
     lng: 129.023868,
     avgRating: 4.4,
+    menus: [
+      { name: "젤라토 1스쿱", price: 3500 },
+      { name: "젤라토 2스쿱", price: 6000 },
+    ],
   },
 ];
 

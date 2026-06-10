@@ -12,12 +12,14 @@
   "dependencies": {
     "@mj-studio/react-native-naver-map": "^2.7.0",
     "@react-google-maps/api": "^2.20.8",
+    "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.13.4",
     "firebase": "^12.14.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

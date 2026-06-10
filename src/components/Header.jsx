@@ -32,6 +32,15 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
                     <SearchIcon width={24} height={24} />
                 </button>
             </div>
+
+            <div className={style.authButtons}>
+                <button className={style.loginBtn} onClick={() => nav("/login")}>
+                    로그인
+                </button>
+                <button className={style.signupBtn} onClick={() => nav("/signup")}>
+                    회원가입
+                </button>
+            </div>
         </div>
     )
 }

@@ -8,6 +8,8 @@ import Hotplace from './pages/Hotplace';
 import Saved from './pages/Saved';
 import Mypage from './pages/Mypage';
 import Detail  from './pages/Detail';
+import LoginPage from './pages/Loginpage';
+import SignupPage from './pages/SignupPage';
 
 export default function App() {
 
@@ -33,6 +35,8 @@ export default function App() {
           <Route path='/saved' element={<Saved/>}/>
           <Route path='/mypage' element={<Mypage/>} />
           <Route path='/detail' element={<Detail/>} />
+          <Route path='/login' element={<LoginPage/>} />
+          <Route path='/signup' element={<SignupPage />} />
         </Routes>
       </main>
     </div>
