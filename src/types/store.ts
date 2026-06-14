@@ -1,10 +1,10 @@
 export type Store = {
-  id: string        // Firestore 자동 ID는 string
+  id: string      
   name: string
-  category: string[]  // 배열로 저장했으니까
+  category: string[] 
   address: string
-  tel: string       // 전화번호는 string
+  tel: string   
   lat: number
   lng: number
-  avgRating: number  // rating → avgRating으로 바꿨었으니까
+  avgRating: number 
 }

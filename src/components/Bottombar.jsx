@@ -1,8 +1,5 @@
-import style from '../css/Home.module.css';
-import FireIcon from '../assets/icons/Fire.svg?react';
-import HeartIcon from '../assets/icons/Heart.svg?react';
-import ProfileIcon from '../assets/icons/Profile.svg?react';
 import { useNavigate } from 'react-router-dom';
+import style from '../css/Home.module.css';
 
 function Bottombar() {
 
@@ -12,17 +9,17 @@ function Bottombar() {
         <div className={style.menu}>
                 <button className={style.menuIcon} 
                   onClick={() => nav('/hotplace')}>
-                  <FireIcon width={35} height={35} />
+                  <img src='/Fire.svg' width={35} height={35} />
                   <div>핫플레이스</div>
                 </button>
                 <button className={style.menuIcon}
                   onClick={() => nav('/saved')}>
-                  <HeartIcon width={30} height={30} />
+                  <img src='/SaveHeart.svg' width={30} height={30} />
                   <div>저장</div>
                 </button>
                 <button className={style.menuIcon}
                   onClick={() => nav('/mypage')}>
-                  <ProfileIcon width={35} height={35}/>
+                  <img src='Profile.svg' width={35} height={35}/>
                   <div>마이페이지</div>
                 </button>
               </div>

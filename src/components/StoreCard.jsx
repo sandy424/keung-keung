@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import style from "../css/Storecard.module.css";
-import RateStar from "../assets/icons/RateStar.svg?react";
-import SaveHeart from '../assets/icons/SaveHeart.svg?react';
 
 function StoreCard({ store, onClose }) {
   const [saved, setSaved] = useState(false);
@@ -25,13 +23,13 @@ function StoreCard({ store, onClose }) {
       <div className={style.secondHeader}>
         <h2>{store.name}</h2>
         <button type="button" onClick={toggleSaved} className={style.heartBtn}>
-          <SaveHeart width={35} height={35} color={saved ? 'red' : 'transparent'} />
+          <img src='/SaveHeart.svg' width={35} height={35} color={saved ? 'red' : 'transparent'} />
         </button>
       </div>
       {/* 별점 */}
       <div className={style.star}>
-        <RateStar width={24} height={24}/>
-        <span>{store.rating}</span>
+        <img src='/RateStar.svg' width={24} height={24}/>
+        <span>{store.avgRating}</span>
       </div>
       <div className={style.explain}>
         가게 설명

@@ -1,6 +1,4 @@
 import { useState } from 'react';
-
-import CategoryBtn from '../assets/icons/category.svg?react';
 import style from '../css/Home.module.css';
 
 const categories = ["전체", "빵", "케이크", "타르트", "구움과자", "기타"];
@@ -12,7 +10,7 @@ function Category( { selected, onSelect }){
     return(
         <div className={style.category}>
             <button onClick={() => setOpen(!open)}>
-                <CategoryBtn width={35} height={35} />
+                <img src='/category.svg' width={35} height={35} />
             </button>
 
             {open && (
