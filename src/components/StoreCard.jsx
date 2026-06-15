@@ -23,7 +23,7 @@ function StoreCard({ store, onClose }) {
       <div className="mt-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">{store.name}</h2>
         <button type="button" onClick={toggleSaved} className="inline-flex items-center justify-center rounded-full p-1">
-          <img src='/SaveHeart.svg' width={35} height={35} alt="저장" />
+          <img src='/Heart.svg' width={24} height={24} alt="저장" />
         </button>
       </div>
       <div className="mt-3 flex items-center gap-2 text-sm text-gray-700">
@@ -34,10 +34,10 @@ function StoreCard({ store, onClose }) {
         가게 설명
       </div>
       {stats.map((label) => (
-        <div key={label} className="mt-3 flex items-center gap-4">
-          <p className="text-sm text-gray-600 w-12">{label}</p>
+        <div key={label} className="mt-4 flex items-center gap-4">
+          <p className="text-sm text-gray-600 w-20">{label}</p>
           <progress value={progressValue} max={100} className="w-full h-3" />
-          <div className="w-12 text-right text-sm font-medium text-gray-600">{progressValue}%</div>
+          <div className="w-12 text-right text-xs font-medium text-gray-600">{progressValue}%</div>
         </div>
       ))}
       <div className="mt-auto flex justify-center">

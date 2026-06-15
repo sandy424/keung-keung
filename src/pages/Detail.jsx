@@ -24,7 +24,7 @@ function Detail() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-semibold">{store?.name}</h2>
                     <button type="button" onClick={toggleSaved} className="inline-flex items-center justify-center rounded-full p-1">
-                        <img src='/SaveHeart.svg' width={35} height={35} alt="즐겨찾기" />
+                        <img src='/Heart.svg' width={28} height={28} alt="즐겨찾기" />
                     </button>
                 </div>
             </div>

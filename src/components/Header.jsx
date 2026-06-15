@@ -26,7 +26,7 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
 
     return(
         <div className="flex items-center justify-center gap-30 bg-white p-5 shadow-sm">
-            <button onClick={onLogoChange} className="inline-flex items-center justify-center">
+            <button onClick={onLogoChange} className="inline-flex items-center justify-center cursor-pointer">
                 <img src='/Logo.svg' width={50} height={30} />
             </button>
             
