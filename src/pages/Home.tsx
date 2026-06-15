@@ -1,5 +1,4 @@
 import { useEffect,useRef, useState } from "react";
-import style from '../css/Home.module.css';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase"; 
 import {Store} from '../types/store';
@@ -29,35 +28,65 @@ function Home({query}:{query:string}) {
   const [selected, setSelected] = useState("전체");
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
 
-  const mapDivRef = useRef(null);
-  const mapRef = useRef(null);
+  const mapDivRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
   const markerRef = useRef<any[]>([]);
 
   //데이터 불러오기
   useEffect(() => {
-  const fetchStores = async () => {
-    const snapshot = await getDocs(collection(db, "shops"));
-    const parsedStores: Store[] = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data() as Omit<Store, "id">,
-    }));
-    setAllStores(parsedStores);
-    setStores(parsedStores);
-  };
+    const fetchStores = async () => {
+      const snapshot = await getDocs(collection(db, "shops"));
+      const parsedStores: Store[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() as Omit<Store, "id">,
+      }));
+      setAllStores(parsedStores);
+      setStores(parsedStores);
+    };
 
-  fetchStores();
-}, []);
+    fetchStores();
+  }, []);
   
   // 지도 불러오기
   useEffect(() => {
-    const { naver } = window;
-    if (!naver?.maps || !mapDivRef.current) return; // 네이버 스크립트 로드 전 보호 코드
+    const initializeMap = () => {
+      if (!window.naver?.maps || !mapDivRef.current || mapRef.current) return;
+      const location = new window.naver.maps.LatLng(35.1796, 129.0756);
+      mapRef.current = new window.naver.maps.Map(mapDivRef.current, {
+        center: location,
+        zoom: 12,
+      });
+    };
 
-    const location = new naver.maps.LatLng(35.1796, 129.0756);
-    mapRef.current = new naver.maps.Map(mapDivRef.current, {
-      center: location,
-      zoom: 12,
+    if (window.naver?.maps) {
+      initializeMap();
+      return;
+    }
+
+    const existingScript = document.querySelector('script[src*="openapi.map.naver.com"]') as HTMLScriptElement | null;
+    if (existingScript) {
+      if ((window as any).naver?.maps) {
+        initializeMap();
+      } else {
+        existingScript.addEventListener('load', initializeMap);
+      }
+      return () => existingScript?.removeEventListener('load', initializeMap);
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://openapi.map.naver.com/openapi/v3/maps.js?clientId=vofcw19pd4';
+    script.async = true;
+    script.defer = true;
+    script.dataset.naverMaps = 'true';
+    script.addEventListener('load', initializeMap);
+    script.addEventListener('error', () => {
+      console.error('Naver Maps script failed to load');
     });
+    document.head.appendChild(script);
+
+    return () => {
+      script.removeEventListener('load', initializeMap);
+    };
   }, []); // 처음 렌더링 한 번만 실행
 
   //마커 생성
@@ -101,17 +130,17 @@ function Home({query}:{query:string}) {
   }
 
   return (
-    <div className={style.container}>
+    <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
       <div
         ref={mapDivRef}
-        style={{ width: "100%", height: "100%" }}/>
+        className="w-full h-full min-h-[calc(100vh-5rem)]" />
         
       <StoreCard 
-      store={selectedStore}
-      onClose={() => setSelectedStore(null)}/>
+        store={selectedStore}
+        onClose={() => setSelectedStore(null)} />
       <Category 
-      selected={selected}
-      onSelect={handleSelected}/>
+        selected={selected}
+        onSelect={handleSelected} />
       <Bottombar />
     </div>
   );

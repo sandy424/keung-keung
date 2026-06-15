@@ -1,1 +1,33 @@
 @import 'tailwindcss';
+
+html, body, #root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #fff9d4;
+}
+
+progress {
+  width: 100%;
+  height: 0.75rem;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background-color: #e9e9e9;
+  border-radius: 9999px;
+}
+
+progress::-webkit-progress-value {
+  background: #3b82f6;
+  border-radius: 9999px;
+}
+
+progress::-moz-progress-bar {
+  background: #3b82f6;
+  border-radius: 9999px;
+}
