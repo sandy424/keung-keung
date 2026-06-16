@@ -1,10 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { auth, db } from '../firebase';
 import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import StoreDoc from '../components/StoreDoc';
+import StoreMenu from '../components/StoreMenu';
+import StoreReview from '../components/StoreReview';
 
 export default function Detail() {
 
@@ -53,12 +55,19 @@ export default function Detail() {
         setSaved(prev => !prev);
     };
     
+    const storeDoc = useRef(null);
+    const storeMenu = useRef(null);
+    const storeReview = useRef(null);
+
     const handleTab = (tab) => {
         setDetailTab(tab);
+        if(tab === "정보") storeDoc.current?.scrollIntoView({ behavior : "smooth"});
+        if(tab === "메뉴") storeMenu.current?.scrollIntoView({ behavior : "smooth"});
+        if(tab === "리뷰") storeReview.current?.scrollIntoView({ behavior : "smooth"});
     };
     
     return(
-        <div className="mx-auto w-full max-w-175 h-full bg-white">
+        <div className="mx-auto w-full max-w-175 h-screen overflow-y-auto bg-white">
             <div className="flex items-center p-5">
                 <button onClick={() => nav(-1)} className="inline-flex items-center justify-center rounded-full bg-gray-100 p-2">
                     <img src='/Last.svg' width={24} height={24} alt="뒤로가기" />
@@ -84,7 +93,7 @@ export default function Detail() {
                     <span>리뷰 {store?.reviewcount}</span>
                 </div>
 
-                <div className="flex pt-14 justify-center text-lg font-bold gap-45 text-gray-500">
+                <div className="flex py-14 justify-center text-lg font-bold gap-45 text-gray-500">
                     {["정보", "메뉴", "리뷰"].map((tab) => (
                         <button
                             key={tab}
@@ -98,10 +107,15 @@ export default function Detail() {
                         </button>
                     ))}
                 </div>
-                {/* 탭 컴포넌트 */}
-                {detailTab === "정보" && <StoreDoc store={store} />}
-                {/* {activeTab === "메뉴" && <MenuTab shopId={store.id} />}
-                {activeTab === "리뷰" && <ReviewTab shopId={store.id} />} */}
+                <div ref={storeDoc}>
+                    <StoreDoc store={store} />
+                </div>
+                <div ref={storeMenu}>
+                    <StoreMenu store={store} />
+                </div>
+                <div ref={storeReview}>
+                    <StoreReview store={store} />
+                </div>
             </div>
         </div>
     )
