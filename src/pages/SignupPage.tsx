@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 // firebase에서 모듈 가져오기
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 
 export default function Signup() {
@@ -32,7 +33,15 @@ export default function Signup() {
 
     try {
       setLoading(true);
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userInitail = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userInitail.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        nickname: "",
+        createAt: new Date(),
+      });
+      
       nav("/");
     } catch (e: any) {
       if (e.code === "auth/email-already-in-use") {
