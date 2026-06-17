@@ -107,13 +107,13 @@ export default function Detail() {
                         </button>
                     ))}
                 </div>
-                <div ref={storeDoc}>
+                <div ref={storeDoc} className='p-6'>
                     <StoreDoc store={store} />
                 </div>
-                <div ref={storeMenu}>
+                <div ref={storeMenu} className='p-6'>
                     <StoreMenu store={store} />
                 </div>
-                <div ref={storeReview}>
+                <div ref={storeReview} className='p-6'>
                     <StoreReview store={store} />
                 </div>
             </div>
