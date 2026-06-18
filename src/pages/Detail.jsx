@@ -114,7 +114,7 @@ export default function Detail() {
                     <StoreMenu shopId={store.id} />
                 </div>
                 <div ref={storeReview} className="scroll-mt-40">
-                    <StoreReview shopReview={store.id} />
+                    <StoreReview shopId={store.id} />
                 </div>
             </div>
         </div>
