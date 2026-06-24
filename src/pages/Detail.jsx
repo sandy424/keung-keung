@@ -18,7 +18,7 @@ export default function Detail() {
     const [userId, setUserId] = useState(null);
     const [detailTab, setDetailTab] = useState("정보");
     const [reviewCount, setReviewCount] = useState(store?.reviewCount ?? 0);
-    
+    const [avgRating, setAvgRating] = useState(store?.avgRating ?? null);
     // 로그인 감지
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (user) => {
@@ -87,10 +87,13 @@ export default function Detail() {
 
                 <div className="flex items-center pt-4 text-base gap-12">
                     <span className="text-gray-500">{store?.category}</span>
+                    {/* 별점 평균 */}
                     <div className="flex gap-2 text-gray-700">
                         <img src='/RateStar.svg' width={24} height={24} alt="별점" />
-                        <span className="font-semibold">{store.avgRating}</span>
+                        <span className="font-semibold">{avgRating ?? "-"}</span>
                     </div>
+
+                    {/* 리뷰 개수 */}
                     <div className="flex gap-4 text-gray-600">
                         <span>리뷰</span>
                         <span>{reviewCount}</span>
@@ -118,7 +121,7 @@ export default function Detail() {
                     <StoreMenu shopId={store.id} />
                 </div>
                 <div ref={storeReview} className="scroll-mt-40">
-                    <StoreReview shopId={store.id} onCountChange={setReviewCount} />
+                    <StoreReview shopId={store.id} onCountChange={setReviewCount} onAvgChange={setAvgRating} />
                 </div>
             </div>
         </div>

@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import Modal from "./Modal";
 
-export default function StoreReview({shopId, onCountChange}) {
+export default function StoreReview({shopId, onCountChange, onAvgChange}) {
 
   const [review, setReview] = useState([]);
   const [open, setOpen] = useState(false);
@@ -37,6 +37,15 @@ export default function StoreReview({shopId, onCountChange}) {
     }));
     setReview(list);
     onCountChange?.(list.length);
+
+    // 전체 리뷰 평균 계산
+    const rated = list.filter((r) => r.rating);       // 별점 있는 리뷰만
+    if (rated.length > 0) {
+      const total = rated.reduce((acc, r) => acc + Number(getAvg(r.rating)), 0);
+      onAvgChange?.((total / rated.length).toFixed(1));
+    } else {
+      onAvgChange?.(null);                             // 별점 리뷰 없으면 null
+    }
   }
 
   useEffect(() => {
