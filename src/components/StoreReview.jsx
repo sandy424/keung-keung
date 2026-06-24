@@ -17,13 +17,13 @@ export default function StoreReview({shopId, onCountChange}) {
   const [text, setText] = useState("");
   const [submit, setSubmit] = useState(false);
   const [rating, setRating] = useState({
-    tast: 0,
-    mode: 0,
+    taste: 0,
+    mood: 0,
     kind: 0,
     price: 0,
   });
     
-
+  // 리뷰 불러오기
   const fetchReview = async() => {
     if (!shopId) return;
     const q = query(
@@ -52,9 +52,11 @@ export default function StoreReview({shopId, onCountChange}) {
     try{
       await addDoc(collection(db, "shops", shopId, "reviews"), {
         text: text.trim(),
+        rating,
         createdAt: serverTimestamp(),
       });
       setText("");
+      setRating({taste: 0, mood: 0, kind: 0, price: 0});
       setOpen(false);
       await fetchReview(); // 리뷰 목록 새로고침
       
@@ -66,6 +68,19 @@ export default function StoreReview({shopId, onCountChange}) {
     }
   }
 
+
+  const handleRating = (key, v) => {
+    setRating((prev) => ({...prev, [key]: v}));
+  }
+
+  // 별점 평균 계산
+  const getAvg = (rating) => {
+    if (!rating) return null;
+    const values = Object.values(rating);
+    const sum = values.reduce((acc, cur) => acc + cur, 0);
+    return (sum/values.length).toFixed(1);
+  }
+
   return(
     <div className='pt-20'>
 
@@ -75,14 +90,19 @@ export default function StoreReview({shopId, onCountChange}) {
       </div>
 
       <ul>
-        {review.map((r) => (
-          <li key={r.id} className="border-b border-gray-200 pb-4 flex justify-between px-6">
-            <p>{r.text}</p>
-            <span>
-              {r.createdAt?.toDate?.().toLocaleDateString() ?? ""}
-            </span>
-          </li>
-        ))}
+        {review.map((r) => {
+          const avg = getAvg(r.rating);
+          return (
+            <li key={r.id} className="border-b border-gray-200 py-4 flex justify-between px-6">
+              <div className="flex items-center gap-2">
+                <img src="/RateStar.svg" width={20} height={20} alt="별점" />
+                {avg && <span className="font-semibold">{avg}</span>}
+                <p>{r.text}</p>
+              </div>
+              <span>{r.createdAt?.toDate?.().toLocaleDateString() ?? ""}</span>
+            </li>
+          );
+        })}
       </ul>
       
       <button className="cursor-pointer mt-4 rounded-3xl bg-amber-500 px-5 py-3 text-white text-lg text-" onClick={() => setOpen(true)}>
@@ -94,19 +114,46 @@ export default function StoreReview({shopId, onCountChange}) {
         <h2 className="text-lg font-bold mb-8">리뷰 작성</h2>
 
         {/* 별점 매기기 */}
-        <div className="flex flex-col gap-3 mb-10">
+        <div className="flex flex-col gap-3 mb-10 px-10">
           {[
-            {key: "tast", label: "맛"},
-            {key: "mode", label: "분위기"},
+            {key: "taste", label: "맛"},
+            {key: "mood", label: "분위기"},
             { key: "kind", label: "친절" },
             { key: "price", label: "가격" },
           ].map(({key, label}) => (
-            <div>
-              <span>{label}</span>
+            <div key={key} className="flex items-center justify-between">
+              <span className="text-base">{label}</span>
+
+              {/* 별 5개 */}
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map((n) => {
+                  const score = n <= rating[key];
+                  return(
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => handleRating(key, n)}
+                      className="cursor-pointer">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill={score ? "#EF9F27" : "none"}
+                        stroke={score ? "#EF9F27" : "#d1d5db"}
+                        strokeWidth="2"
+                      >
+                        <path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 17.3 5.8 20.9l1.6-6.8L2.2 8.9l6.9-.6z" />
+                      </svg>  
+                    </button>
+                  )
+
+                })}
+              </div>
             </div>
           ))}
         </div>
-
+        
+        {/* 리뷰 작성박스 */}
         <textarea value={text} onChange={(e) => setText(e.target.value)}
           placeholder="리뷰를 작성해주세요"
           className="w-full h-32 resize-none rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-300" />
