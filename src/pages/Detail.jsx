@@ -19,6 +19,7 @@ export default function Detail() {
     const [detailTab, setDetailTab] = useState("정보");
     const [reviewCount, setReviewCount] = useState(store?.reviewCount ?? 0);
     const [avgRating, setAvgRating] = useState(store?.avgRating ?? null);
+
     // 로그인 감지
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (user) => {
@@ -51,7 +52,11 @@ export default function Detail() {
         if(saved) {
           await deleteDoc(ref);
         } else {
-          await setDoc(ref, {shopId: store.id, savedAt: new Date()});
+          await setDoc(ref, {
+            shopId: store.id,
+            name: store.name,
+            savedAt: new Date(),
+            });
         }
         setSaved(prev => !prev);
     };

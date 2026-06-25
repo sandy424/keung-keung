@@ -11,6 +11,7 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
     useEffect(() => {
         const unsign = onAuthStateChanged(auth, (currentUser) => {
             setUserInfo(currentUser);
+            console.log(auth.currentUser);
         });
         return() => unsign();
     }, []);
@@ -51,13 +52,13 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
 
             <div className="flex items-center gap-2">
                 {userInfo ? (
-                    <button className="text-sm text-gray-600 hover:text-black px-2 py-1" onClick={handleLogout}>로그아웃</button>
+                    <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={handleLogout}>로그아웃</button>
                 ) : (
                     <>
-                        <button className="text-sm text-gray-600 hover:text-black px-2 py-1" onClick={() => nav("/login")}>
+                        <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={() => nav("/login")}>
                             로그인
                         </button>
-                        <button className="text-sm text-gray-600 hover:text-black px-2 py-1" onClick={() => nav("/signup") }>
+                        <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={() => nav("/signup") }>
                             회원가입
                         </button>
                     </>

@@ -74,7 +74,11 @@ function StoreCard({ store, onClose }) {
     if(saved) {
       await deleteDoc(ref);
     } else {
-      await setDoc(ref, {shopId: store.id, savedAt: new Date()});
+      await setDoc(ref, {
+        shopId: store.id,
+        name: store.name,
+        savedAt: new Date(),
+      });
     }
     setSaved(prev => !prev);
   };
