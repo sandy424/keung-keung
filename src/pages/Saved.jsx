@@ -49,12 +49,12 @@ export default function Saved() {
 
     return(
         <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
-            <div className="p-4 space-y-3">
+            <div className="p-16 space-y-6">
                 {savedStore.map((store) => (
                     <div
                         key={store.id}
                         onClick={() => nav("/detail", {state: {store}})}
-                        className="flex items-center gap-3 p-3 rounded-xl shadow-sm cursor-pointer hover:bg-gray-50"
+                        className="flex items-center gap-3 p-4 rounded-xl shadow-sm cursor-pointer bg-white hover:bg-gray-100"
                     >
                         <span className="font-medium">{store.name}</span>
                         <span className="text-sm text-gray-500">{store.category}</span>
