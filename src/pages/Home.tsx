@@ -1,7 +1,7 @@
-import { useEffect,useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase"; 
-import {Store} from '../types/store';
+import { db } from "../firebase";
+import { Store } from "../types/store";
 
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
@@ -21,9 +21,8 @@ declare global {
   }
 }
 
-function Home({query}:{query:string}) {
+function Home({ query }: { query: string }) {
   const [stores, setStores] = useState<Store[]>([]);
-  // 카테고리 useState 설정
   const [allStores, setAllStores] = useState<Store[]>([]);
   const [selected, setSelected] = useState("전체");
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -32,94 +31,72 @@ function Home({query}:{query:string}) {
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any[]>([]);
 
-  //데이터 불러오기
+  // 데이터 불러오기
   useEffect(() => {
     const fetchStores = async () => {
       const snapshot = await getDocs(collection(db, "shops"));
-      const parsedStores: Store[] = snapshot.docs.map(doc => ({
+
+      const parsedStores: Store[] = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data() as Omit<Store, "id">,
+        ...(doc.data() as Omit<Store, "id">),
       }));
+
       setAllStores(parsedStores);
       setStores(parsedStores);
     };
 
     fetchStores();
   }, []);
-  
-  // 지도 불러오기
+
+  // 지도 생성
   useEffect(() => {
-    const initializeMap = () => {
-      if (!window.naver?.maps || !mapDivRef.current || mapRef.current) return;
-      const location = new window.naver.maps.LatLng(35.1796, 129.0756);
-      mapRef.current = new window.naver.maps.Map(mapDivRef.current, {
-        center: location,
-        zoom: 12,
-      });
-    };
+    if (!window.naver?.maps || !mapDivRef.current || mapRef.current) return;
 
-    if (window.naver?.maps) {
-      initializeMap();
-      return;
-    }
+    const location = new window.naver.maps.LatLng(35.1796, 129.0756);
 
-    const existingScript = document.querySelector('script[src*="openapi.map.naver.com"]') as HTMLScriptElement | null;
-    if (existingScript) {
-      if ((window as any).naver?.maps) {
-        initializeMap();
-      } else {
-        existingScript.addEventListener('load', initializeMap);
-      }
-      return () => existingScript?.removeEventListener('load', initializeMap);
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://openapi.map.naver.com/openapi/v3/maps.js?clientId=vofcw19pd4';
-    script.async = true;
-    script.defer = true;
-    script.dataset.naverMaps = 'true';
-    script.addEventListener('load', initializeMap);
-    script.addEventListener('error', () => {
-      console.error('Naver Maps script failed to load');
+    mapRef.current = new window.naver.maps.Map(mapDivRef.current, {
+      center: location,
+      zoom: 12,
     });
-    document.head.appendChild(script);
+  }, []);
 
-    return () => {
-      script.removeEventListener('load', initializeMap);
-    };
-  }, []); // 처음 렌더링 한 번만 실행
-
-  //마커 생성
+  // 마커 생성
   useEffect(() => {
-    if(!mapRef.current) return;
+    if (!mapRef.current) return;
+
     // 기존 마커 제거
-    markerRef.current.forEach(marker => marker.setMap(null));
+    markerRef.current.forEach((marker) => marker.setMap(null));
     markerRef.current = [];
 
-    stores.forEach(store => {
+    stores.forEach((store) => {
       const marker = new window.naver.maps.Marker({
         position: new window.naver.maps.LatLng(store.lat, store.lng),
         map: mapRef.current,
       });
-      // 마커 클릭 -> 선택된 가게
+
+      // 마커 클릭
       window.naver.maps.Event.addListener(marker, "click", () => {
         setSelectedStore(store);
-      })
+      });
+
       markerRef.current.push(marker);
-      
     });
   }, [stores]);
-  
-  //카테고리 필터
+
+  // 카테고리 및 검색 필터
   useEffect(() => {
     let filtered = allStores;
 
     if (selected !== "전체") {
-      filtered = filtered.filter(store => store.category.includes(selected));
+      filtered = filtered.filter((store) =>
+        store.category.includes(selected)
+      );
     }
 
     if (query.trim() !== "") {
-      filtered = filtered.filter(store => store.name.includes(query.trim()));
+      filtered = filtered.filter((store) =>
+        store.name.includes(query.trim())
+      );
     }
 
     setStores(filtered);
@@ -127,20 +104,25 @@ function Home({query}:{query:string}) {
 
   const handleSelected = (category: string) => {
     setSelected(category);
-  }
+  };
 
   return (
     <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
       <div
         ref={mapDivRef}
-        className="w-full h-full min-h-[calc(100vh-5rem)]" />
-        
-      <StoreCard 
+        className="w-full h-full min-h-[calc(100vh-5rem)]"
+      />
+
+      <StoreCard
         store={selectedStore}
-        onClose={() => setSelectedStore(null)} />
-      <Category 
+        onClose={() => setSelectedStore(null)}
+      />
+
+      <Category
         selected={selected}
-        onSelect={handleSelected} />
+        onSelect={handleSelected}
+      />
+
       <Bottombar />
     </div>
   );
