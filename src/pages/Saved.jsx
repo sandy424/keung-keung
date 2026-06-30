@@ -49,18 +49,28 @@ export default function Saved() {
 
     return(
         <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
-            <div className="p-16 space-y-6">
-                {savedStore.map((store) => (
-                    <div
-                        key={store.id}
-                        onClick={() => nav("/detail", {state: {store}})}
-                        className="flex items-center gap-3 p-4 rounded-xl shadow-sm cursor-pointer bg-white hover:bg-gray-100"
-                    >
-                        <span className="font-medium">{store.name}</span>
-                        <span className="text-sm text-gray-500">{store.category}</span>
+            {!userId ? (
+                <div className="pt-64 text-center">
+                    <p className="text-gray-500">로그인이 필요한 서비스입니다.</p>
+                </div>
+            ) : (
+                <div className="p-16 space-y-6">
+                    <div className="text-lg font-semibold flex gap-4">
+                        <p className="text-gray-700">내 찜 목록</p>
+                        <p className="text-red-600">{savedStore.length}</p>
                     </div>
-                ))}
-            </div>
+                    {savedStore.map((store) => (
+                        <div
+                            key={store.id}
+                            onClick={() => nav("/detail", {state: {store}})}
+                            className="flex items-center gap-3 p-4 rounded-xl shadow-sm cursor-pointer bg-white hover:bg-gray-100"
+                        >
+                            <span className="font-medium">{store.name}</span>
+                            <span className="text-sm text-gray-500">{store.category}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
             <Bottombar />
         </div>
     )
