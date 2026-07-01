@@ -1,17 +1,27 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 export default function Header({inputValue, onInputChange, onSearch, onClear, query}) {
     
     const [userInfo, setUserInfo] = useState(null);
+    const [nickname, setNickname] = useState(null); // 추가
     const nav = useNavigate();
 
     useEffect(() => {
-        const unsign = onAuthStateChanged(auth, (currentUser) => {
+        const unsign = onAuthStateChanged(auth, async (currentUser) => {
             setUserInfo(currentUser);
-            console.log(auth.currentUser);
+
+            if (currentUser) {
+                const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+                if (userDoc.exists()) {
+                    setNickname(userDoc.data().nickname);
+                }
+            } else {
+                setNickname(null);
+            }
         });
         return() => unsign();
     }, []);
@@ -26,7 +36,7 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
     }
 
     return(
-        <div className="flex items-center justify-center gap-30 bg-white p-5 shadow-sm">
+        <div className="sticky top-0 z-50 flex items-center justify-center gap-30 bg-white p-5 shadow-sm">
             <button onClick={onLogoChange} className="inline-flex items-center justify-center cursor-pointer">
                 <img src='/Logo.svg' width={50} height={30} />
             </button>
@@ -52,7 +62,12 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
 
             <div className="flex items-center gap-2">
                 {userInfo ? (
-                    <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={handleLogout}>로그아웃</button>
+                    <>
+                        {nickname && (
+                            <span className="text-sm text-gray-700">{nickname}님</span>
+                        )}
+                        <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={handleLogout}>로그아웃</button>
+                    </>
                 ) : (
                     <>
                         <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={() => nav("/login")}>
