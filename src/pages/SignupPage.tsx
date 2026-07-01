@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// firebase에서 모듈 가져오기
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { doc, setDoc } from "firebase/firestore";
-
+import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Signup() {
 
@@ -14,13 +12,47 @@ export default function Signup() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // 닉네임 중복 체크 관련 state 추가
+    const [nicknameStatus, setNicknameStatus] = useState<"idle" | "checking" | "available" | "duplicate">("idle");
+
     const nav = useNavigate();
+
+    // 닉네임 실시간 중복 체크 (디바운싱)
+    useEffect(() => {
+        if (!nickname) {
+            setNicknameStatus("idle");
+            return;
+        }
+
+        setNicknameStatus("checking");
+
+        const timer = setTimeout(async () => {
+            try {
+                const q = query(collection(db, "users"), where("nickname", "==", nickname));
+                const snapshot = await getDocs(q);
+                setNicknameStatus(snapshot.empty ? "available" : "duplicate");
+            } catch (e) {
+                setNicknameStatus("idle");
+            }
+        }, 500); // 500ms 디바운싱
+
+        return () => clearTimeout(timer);
+    }, [nickname]);
 
     const handleSignup = async () => {
     setError("");
 
     if (!email || !nickname || !password || !confirmPassword) {
       setError("모든 항목을 입력해 주세요.");
+      return;
+    }
+    if (nicknameStatus === "duplicate") {
+      setError("이미 사용 중인 닉네임입니다.");
+      return;
+    }
+    if (nicknameStatus === "checking") {
+      setError("닉네임 중복 확인 중입니다. 잠시만 기다려 주세요.");
       return;
     }
     if (password.length < 6) {
@@ -34,6 +66,16 @@ export default function Signup() {
 
     try {
       setLoading(true);
+
+      // 최종 제출 시에도 한 번 더 확인 (레이스 컨디션 방지)
+      const q = query(collection(db, "users"), where("nickname", "==", nickname));
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        setError("이미 사용 중인 닉네임입니다.");
+        setLoading(false);
+        return;
+      }
+
       const userInitail = await createUserWithEmailAndPassword(auth, email, password);
       const user = userInitail.user;
 
@@ -70,17 +112,6 @@ export default function Signup() {
         <hr className="border-yellow-100 mb-6" />
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">닉네임</label>
-          <input
-            type="text"
-            placeholder="사용하실 닉네임을 입력해 주세요"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
-          />
-        </div>
-
-        <div className="mb-4">
           <label className="block text-sm font-medium text-yellow-900 mb-1.5">이메일</label>
           <input
             type="email"
@@ -89,6 +120,27 @@ export default function Signup() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
           />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-yellow-900 mb-1.5">닉네임</label>
+          <input
+            type="text"
+            placeholder="사용하실 닉네임을 입력해 주세요"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+          />
+          {/* 닉네임 상태 실시간 표시 */}
+          {nicknameStatus === "checking" && (
+            <p className="text-xs text-gray-400 mt-1.5">확인 중...</p>
+          )}
+          {nicknameStatus === "available" && (
+            <p className="text-xs text-green-600 mt-1.5">사용 가능한 닉네임이에요</p>
+          )}
+          {nicknameStatus === "duplicate" && (
+            <p className="text-xs text-red-500 mt-1.5">이미 사용 중인 닉네임이에요</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -119,7 +171,7 @@ export default function Signup() {
 
         <button
           onClick={handleSignup}
-          disabled={loading}
+          disabled={loading || nicknameStatus === "checking" || nicknameStatus === "duplicate"}
           className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-3 rounded-xl text-sm transition disabled:opacity-50"
         >
           {loading ? "가입 중..." : "가입하기"}
