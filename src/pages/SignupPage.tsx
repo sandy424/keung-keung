@@ -9,6 +9,7 @@ import { doc, setDoc } from "firebase/firestore";
 export default function Signup() {
 
     const [email, setEmail] = useState("");
+    const [nickname, setNickname] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -18,7 +19,7 @@ export default function Signup() {
     const handleSignup = async () => {
     setError("");
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !nickname || !password || !confirmPassword) {
       setError("모든 항목을 입력해 주세요.");
       return;
     }
@@ -38,7 +39,7 @@ export default function Signup() {
 
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
-        nickname: "",
+        nickname: nickname,
         createAt: new Date(),
       });
       
@@ -67,6 +68,17 @@ export default function Signup() {
         </div>
 
         <hr className="border-yellow-100 mb-6" />
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-yellow-900 mb-1.5">닉네임</label>
+          <input
+            type="text"
+            placeholder="사용하실 닉네임을 입력해 주세요"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+          />
+        </div>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-yellow-900 mb-1.5">이메일</label>
