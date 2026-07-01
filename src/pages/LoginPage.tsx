@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  
+  const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,20 +15,32 @@ export default function Login() {
   const handleLogin = async () => {
     setError("");
 
-    if (!email || !password) {
+    if (!nickname || !password) {
       setError("모든 항목을 입력해 주세요.");
       return;
     }
 
     try {
       setLoading(true);
+
+      // 닉네임으로 Firestore에서 이메일 조회
+      const q = query(collection(db, "users"), where("nickname", "==", nickname));
+      const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        setError("닉네임 또는 비밀번호가 올바르지 않습니다.");
+        setLoading(false);
+        return;
+      }
+
+      const email = snapshot.docs[0].data().email;
+
+      // 조회한 이메일로 로그인
       await signInWithEmailAndPassword(auth, email, password);
       nav("/");
     } catch (e: any) {
       if (e.code === "auth/user-not-found" || e.code === "auth/wrong-password" || e.code === "auth/invalid-credential") {
-        setError("이메일 또는 비밀번호가 올바르지 않습니다.");
-      } else if (e.code === "auth/invalid-email") {
-        setError("이메일 형식이 올바르지 않습니다.");
+        setError("닉네임 또는 비밀번호가 올바르지 않습니다.");
       } else if (e.code === "auth/too-many-requests") {
         setError("로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.");
       } else {
@@ -50,12 +64,12 @@ export default function Login() {
         <hr className="border-yellow-100 mb-6" />
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">이메일</label>
+          <label className="block text-sm font-medium text-yellow-900 mb-1.5">닉네임</label>
           <input
-            type="email"
-            placeholder="example@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="닉네임을 입력해 주세요"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
           />
         </div>
