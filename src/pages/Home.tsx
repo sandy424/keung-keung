@@ -6,6 +6,7 @@ import { Store } from "../types/store";
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
 import StoreCard from "../components/StoreCard";
+import AddStoreCard from "../components/AddStoreCard";
 
 // 네이버 맵 타입 선언
 declare global {
@@ -16,6 +17,7 @@ declare global {
         LatLng: any;
         Marker: any;
         Event: any;
+        Service: any;
       };
     };
   }
@@ -26,6 +28,7 @@ function Home({ query }: { query: string }) {
   const [allStores, setAllStores] = useState<Store[]>([]);
   const [selected, setSelected] = useState("전체");
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [addModal, setAddModal] = useState(false);
 
   const mapDivRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -106,6 +109,11 @@ function Home({ query }: { query: string }) {
     setSelected(category);
   };
 
+  // 새 가게 등록 시 로컬 state에도 바로 반영
+  const handleStoreAdded = (newStore: Store) => {
+    setAllStores((prev) => [...prev, newStore]);
+  };
+
   return (
     <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
       <div
@@ -123,6 +131,20 @@ function Home({ query }: { query: string }) {
         onSelect={handleSelected}
       />
 
+      {/* 가게 등록 버튼 */}
+      <button
+        onClick={() => setAddModal(true)}
+        className="absolute right-5 bottom-24 h-12 w-12 flex items-center justify-center rounded-full bg-rose-400 text-white text-2xl shadow-md hover:bg-rose-500"
+      >
+        +
+      </button>
+
+      {addModal && (
+        <AddStoreCard
+          onClose={() => setAddModal(false)}
+          onAdded={handleStoreAdded}
+        />
+      )}
       <Bottombar />
     </div>
   );

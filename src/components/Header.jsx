@@ -7,7 +7,7 @@ import { auth, db } from '../firebase';
 export default function Header({inputValue, onInputChange, onSearch, onClear, query}) {
     
     const [userInfo, setUserInfo] = useState(null);
-    const [nickname, setNickname] = useState(null); // 추가
+    const [nickname, setNickname] = useState(null);
     const nav = useNavigate();
 
     useEffect(() => {
