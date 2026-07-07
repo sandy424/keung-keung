@@ -7,6 +7,8 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 import Modal from "./Modal";
 
@@ -22,7 +24,25 @@ export default function StoreReview({shopId, onCountChange, onAvgChange}) {
     kind: 0,
     price: 0,
   });
-    
+
+  // 별점 평균 계산 (리뷰 1개 기준)
+  const getAvg = (rating) => {
+    if (!rating) return null;
+    const values = Object.values(rating);
+    const sum = values.reduce((acc, cur) => acc + cur, 0);
+    return (sum/values.length).toFixed(1);
+  }
+
+  // 리뷰 목록으로 전체 평균 + 개수 계산
+  const calcSummary = (list) => {
+    const rated = list.filter((r) => r.rating);
+    if (rated.length === 0) {
+      return { avg: null, count: list.length };
+    }
+    const total = rated.reduce((acc, r) => acc + Number(getAvg(r.rating)), 0);
+    return { avg: (total / rated.length).toFixed(1), count: list.length };
+  }
+
   // 리뷰 불러오기
   const fetchReview = async() => {
     if (!shopId) return;
@@ -36,16 +56,11 @@ export default function StoreReview({shopId, onCountChange, onAvgChange}) {
       ...doc.data(),
     }));
     setReview(list);
-    onCountChange?.(list.length);
 
-    // 전체 리뷰 평균 계산
-    const rated = list.filter((r) => r.rating);       // 별점 있는 리뷰만
-    if (rated.length > 0) {
-      const total = rated.reduce((acc, r) => acc + Number(getAvg(r.rating)), 0);
-      onAvgChange?.((total / rated.length).toFixed(1));
-    } else {
-      onAvgChange?.(null);                             // 별점 리뷰 없으면 null
-    }
+    const { avg, count } = calcSummary(list);
+    onCountChange?.(count);
+    onAvgChange?.(avg);
+    return { avg, count };
   }
 
   useEffect(() => {
@@ -67,8 +82,15 @@ export default function StoreReview({shopId, onCountChange, onAvgChange}) {
       setText("");
       setRating({taste: 0, mood: 0, kind: 0, price: 0});
       setOpen(false);
-      await fetchReview(); // 리뷰 목록 새로고침
-      
+
+      const { avg, count } = await fetchReview(); // 리뷰 목록 새로고침 + 최신 요약 받기
+
+      // shops 문서에도 avgRating, reviewCount 반영 (지도 팝업 등에서 재사용)
+      await updateDoc(doc(db, "shops", shopId), {
+        avgRating: avg,
+        reviewCount: count,
+      });
+
     } catch (e) {
       console.log("리뷰 저장 실패: ", e);
       alert("리뷰 저장에 실패했어요. 다시 시도해주세요");
@@ -77,18 +99,10 @@ export default function StoreReview({shopId, onCountChange, onAvgChange}) {
     }
   }
 
-
   const handleRating = (key, v) => {
     setRating((prev) => ({...prev, [key]: v}));
   }
 
-  // 별점 평균 계산
-  const getAvg = (rating) => {
-    if (!rating) return null;
-    const values = Object.values(rating);
-    const sum = values.reduce((acc, cur) => acc + cur, 0);
-    return (sum/values.length).toFixed(1);
-  }
 
   return(
     <div className='pt-20'>

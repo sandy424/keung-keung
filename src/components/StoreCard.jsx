@@ -109,7 +109,7 @@ function StoreCard({ store, onClose }) {
 
       <div className="mt-3 flex items-center gap-2 text-sm text-gray-700">
         <img src='/RateStar.svg' width={24} height={24} alt="별점" />
-        <span className="font-semibold">{store.avgRating}</span>
+        <span className="font-semibold">{store.avgRating || "0.0"}</span>
       </div>
       <div className="mt-4 flex h-20 items-center justify-center border-b border-gray-200 pb-2 text-sm font-semibold text-gray-700">
         가게 설명
