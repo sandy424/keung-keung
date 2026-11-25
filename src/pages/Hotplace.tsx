@@ -1,27 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
-import { db } from "../firebase";
-import type { Review, Store } from "../types/store";
+import type { Store } from "../types/store";
 import { formatScore, toScore } from "../utils/rating";
 import { CURRENT_REGION } from "../config/region";
 import useStores from "../hooks/useStores";
 import Bottombar from "../components/Bottombar";
 import StarIcon from "../components/StarIcon";
-import PostCard from "../components/hotplace/PostCard";
 import AiRecommend from "../components/hotplace/AiRecommend";
 import { lookOf } from "../components/hotplace/look";
 
 const CATEGORIES = ["전체", "빵", "케이크", "타르트", "구움과자", "기타"];
 const GRID = 9; // 3 x 3
 
-// 핫플레이스 - 인스타그램 프로필 형태의 3x3 랭킹 + 킁킁이의 추천
+// 핫플레이스 - 인스타그램 프로필 형태의 3x3 랭킹 (칸 클릭 → 가게 상세) + 킁킁이의 추천
 export default function Hotplace() {
   const nav = useNavigate();
   const { stores, status } = useStores();
   const [category, setCategory] = useState("전체");
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [reviews, setReviews] = useState<Record<string, Review | null>>({});
 
   // 평균 별점 → 후기 수 순
   const ranking = useMemo(
@@ -39,32 +34,6 @@ export default function Hotplace() {
   );
 
   const totalReviews = stores.reduce((acc, s) => acc + (s.reviewCount ?? 0), 0);
-  const openIndex = ranking.findIndex((s) => s.id === openId);
-  const openStore = openIndex >= 0 ? ranking[openIndex] : null;
-
-  // 게시물을 열 때 최신 후기 1개 불러오기
-  useEffect(() => {
-    if (!openId || openId in reviews) return;
-    getDocs(query(collection(db, "shops", openId, "reviews"), orderBy("createdAt", "desc"), limit(1)))
-      .then((snap) => {
-        const d = snap.docs[0];
-        setReviews((prev) => ({ ...prev, [openId]: d ? ({ id: d.id, ...d.data() } as Review) : null }));
-      })
-      .catch(() => setReviews((prev) => ({ ...prev, [openId]: null })));
-  }, [openId, reviews]);
-
-  // 팝업: Esc 닫기, ←/→ 이전·다음 게시물
-  useEffect(() => {
-    if (!openStore) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenId(null);
-      if (e.key === "ArrowRight" && ranking[openIndex + 1]) setOpenId(ranking[openIndex + 1].id);
-      if (e.key === "ArrowLeft" && ranking[openIndex - 1]) setOpenId(ranking[openIndex - 1].id);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [openStore, openIndex, ranking]);
-
   const loading = status === "idle" || status === "loading";
 
   return (
@@ -106,7 +75,7 @@ export default function Hotplace() {
             ? Array.from({ length: GRID }, (_, i) => <div key={i} className="aspect-square animate-pulse bg-amber-100" />)
             : Array.from({ length: GRID }, (_, i) => {
                 const s = ranking[i];
-                return s ? <Tile key={s.id} store={s} rank={i + 1} onOpen={() => setOpenId(s.id)} /> : <EmptyTile key={`empty-${i}`} onClick={() => nav("/")} />;
+                return s ? <Tile key={s.id} store={s} rank={i + 1} onOpen={() => nav(`/shop/${s.id}`)} /> : <EmptyTile key={`empty-${i}`} onClick={() => nav("/")} />;
               })}
         </div>
         {!loading && status === "error" && (
@@ -118,25 +87,6 @@ export default function Hotplace() {
           <AiRecommend stores={stores} />
         </div>
       </div>
-
-      {/* 게시물 팝업 */}
-      {openStore && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" onClick={() => setOpenId(null)}
-          role="dialog" aria-modal="true" aria-label={`${openStore.name} 게시물`}>
-          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[28px]" onClick={(e) => e.stopPropagation()}>
-            <PostCard store={openStore} rank={openIndex + 1} review={reviews[openStore.id]} />
-          </div>
-          <button onClick={() => setOpenId(null)} className="absolute right-4 top-4 text-3xl text-white/80 hover:text-white" aria-label="닫기">✕</button>
-          {ranking[openIndex - 1] && (
-            <button onClick={(e) => { e.stopPropagation(); setOpenId(ranking[openIndex - 1].id); }}
-              className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl shadow sm:left-6" aria-label="이전 게시물">‹</button>
-          )}
-          {ranking[openIndex + 1] && (
-            <button onClick={(e) => { e.stopPropagation(); setOpenId(ranking[openIndex + 1].id); }}
-              className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl shadow sm:right-6" aria-label="다음 게시물">›</button>
-          )}
-        </div>
-      )}
 
       <Bottombar />
     </div>
