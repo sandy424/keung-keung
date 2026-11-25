@@ -71,11 +71,7 @@ export default function ProfileMenu({ user, nickname }: Props) {
     }
   };
 
-  const items = [
-    { icon: "👤", label: "마이페이지", to: "/mypage" },
-    { icon: "♡", label: "저장한 가게", to: "/saved" },
-    { icon: "🔥", label: "핫플레이스", to: "/hotplace" },
-  ];
+  const items = [{ icon: "👤", label: "마이페이지", to: "/mypage" }];
 
   return (
     <div ref={rootRef} className="relative shrink-0">
