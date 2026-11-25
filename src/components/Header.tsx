@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
 import useAuth from "../hooks/useAuth";
 import useStores from "../hooks/useStores";
 import { searchStores, type MatchField } from "../utils/search";
 import { formatScore } from "../utils/rating";
 import { CURRENT_REGION } from "../config/region";
 import StarIcon from "./StarIcon";
+import ProfileMenu from "./ProfileMenu";
 
 type Props = {
   inputValue: string;
@@ -107,11 +106,6 @@ export default function Header({ inputValue, query, onInputChange, onSearch, onC
       setOpen(false);
       inputRef.current?.blur();
     }
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    nav("/");
   };
 
   const showDropdown = open;
@@ -214,24 +208,7 @@ export default function Header({ inputValue, query, onInputChange, onSearch, onC
         </div>
 
         {/* 사용자 */}
-        <div className="flex shrink-0 items-center gap-1">
-          {user ? (
-            <>
-              <button onClick={() => nav("/mypage")} className="flex items-center gap-2 rounded-full py-1 pl-1 pr-1 hover:bg-amber-50 sm:pr-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-rose-300 text-sm font-bold text-white">
-                  {(nickname ?? "킁").slice(0, 1)}
-                </span>
-                <span className="hidden text-sm font-medium text-gray-700 sm:inline">{nickname ?? "내 정보"}</span>
-              </button>
-              <button onClick={handleLogout} className="hidden px-2 text-xs text-gray-400 hover:text-gray-700 md:block">로그아웃</button>
-            </>
-          ) : (
-            <button onClick={() => nav("/login", { state: { from: pathname } })}
-              className="rounded-full bg-amber-950 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-900">
-              로그인
-            </button>
-          )}
-        </div>
+        <ProfileMenu user={user} nickname={nickname} />
       </div>
     </header>
   );
