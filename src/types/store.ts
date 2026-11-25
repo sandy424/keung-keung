@@ -1,6 +1,7 @@
 export type Menu = {
   name: string
   price?: number | null
+  photo?: string | null // Firebase Storage 다운로드 URL
 }
 
 export type Store = {

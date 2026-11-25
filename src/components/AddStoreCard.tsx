@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
+import { collection, doc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { CURRENT_REGION, isInRegion } from "../config/region";
 import useAuth from "../hooks/useAuth";
@@ -7,6 +7,7 @@ import type { Menu, Store } from "../types/store";
 import { normalize, searchStores } from "../utils/search";
 import useStores from "../hooks/useStores";
 import { guessCategories } from "../utils/naver";
+import { MAX_ORIGINAL_MB, isImage, uploadMenuPhoto } from "../utils/image";
 
 const CATEGORIES = ["빵", "케이크", "타르트", "구움과자", "기타"];
 const MAX_MENUS = 5;
@@ -16,6 +17,8 @@ const inputCls =
   "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-amber-400 focus:bg-white focus:outline-none";
 
 type Props = { onClose: () => void; onAdded: (store: Store) => void };
+
+type MenuDraft = { name: string; price: string; file: File | null; preview: string | null };
 
 type Place = { name: string; category: string; address: string; roadAddress: string; telephone: string };
 
@@ -30,7 +33,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [menus, setMenus] = useState<{ name: string; price: string }[]>([{ name: "", price: "" }]);
+  const [menus, setMenus] = useState<MenuDraft[]>([{ name: "", price: "", file: null, preview: null }]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [error, setError] = useState("");
@@ -112,6 +115,31 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
   const updateMenu = (i: number, key: "name" | "price", value: string) =>
     setMenus((prev) => prev.map((m, idx) => (idx === i ? { ...m, [key]: value } : m)));
 
+  // 메뉴 사진 선택 (미리보기는 objectURL)
+  const setMenuPhoto = (i: number, file: File | null) => {
+    if (file && !isImage(file)) {
+      setError("JPG, PNG, WEBP 같은 이미지 파일만 올릴 수 있어요.");
+      return;
+    }
+    if (file && file.size > MAX_ORIGINAL_MB * 1024 * 1024) {
+      setError(`사진은 ${MAX_ORIGINAL_MB}MB 이하로 올려주세요.`);
+      return;
+    }
+    setError("");
+    setMenus((prev) =>
+      prev.map((m, idx) => {
+        if (idx !== i) return m;
+        if (m.preview) URL.revokeObjectURL(m.preview);
+        return { ...m, file, preview: file ? URL.createObjectURL(file) : null };
+      })
+    );
+  };
+
+  // 모달이 닫힐 때 미리보기 URL 정리
+  useEffect(() => () => menus.forEach((m) => m.preview && URL.revokeObjectURL(m.preview)), []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [uploadMsg, setUploadMsg] = useState("");
+
   const handleSubmit = async () => {
     setError("");
 
@@ -130,9 +158,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
 
     // 입력 중인 태그도 반영
     const finalTags = tagInput.trim() ? Array.from(new Set([...tags, tagInput.replace(/^#/, "").trim()])) : tags;
-    const finalMenus: Menu[] = menus
-      .filter((m) => m.name.trim())
-      .map((m) => ({ name: m.name.trim(), price: m.price ? Number(m.price.replace(/[^0-9]/g, "")) || null : null }));
+    const menuDrafts = menus.filter((m) => m.name.trim());
 
     setLoading(true);
 
@@ -154,6 +180,20 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
       }
 
       try {
+        // 문서 id를 먼저 만들어 사진 경로(shops/{id}/menus/...)에 사용
+        const shopRef = doc(collection(db, "shops"));
+
+        const photoCount = menuDrafts.filter((m) => m.file).length;
+        if (photoCount) setUploadMsg(`메뉴 사진 ${photoCount}장 올리는 중...`);
+        const finalMenus: Menu[] = await Promise.all(
+          menuDrafts.map(async (m, i) => ({
+            name: m.name.trim(),
+            price: m.price ? Number(m.price.replace(/[^0-9]/g, "")) || null : null,
+            photo: m.file ? await uploadMenuPhoto(shopRef.id, i, m.file) : null,
+          }))
+        );
+        setUploadMsg("");
+
         const newStoreData = {
           name: name.trim(),
           address: resolved || address.trim(),
@@ -177,11 +217,13 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
           createdAt: new Date(),
         };
 
-        const docRef = await addDoc(collection(db, "shops"), newStoreData);
-        onAdded({ id: docRef.id, ...newStoreData });
+        await setDoc(shopRef, newStoreData);
+        onAdded({ id: shopRef.id, ...newStoreData });
         onClose();
-      } catch {
-        setError("등록에 실패했어요. 다시 시도해 주세요.");
+      } catch (e) {
+        console.error("가게 등록 실패", e);
+        setUploadMsg("");
+        setError("등록에 실패했어요. 사진이 있다면 사진 없이 다시 시도해 보세요.");
       } finally {
         setLoading(false);
       }
@@ -242,21 +284,34 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
         </div>
 
         {/* 추천 메뉴 */}
-        <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">추천 메뉴</label>
+        <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">추천 메뉴 <span className="font-normal text-gray-400">(📷 눌러 사진 추가)</span></label>
         <div className="space-y-2">
           {menus.map((m, i) => (
-            <div key={i} className="flex gap-2">
-              <input value={m.name} onChange={(e) => updateMenu(i, "name", e.target.value)} placeholder="메뉴 이름 (예: 휘낭시에)" className={`${inputCls} flex-[2]`} />
-              <input value={m.price} inputMode="numeric" onChange={(e) => updateMenu(i, "price", e.target.value)} placeholder="가격" className={`${inputCls} flex-1`} />
+            <div key={i} className="flex items-center gap-2">
+              {/* 메뉴 사진 */}
+              <div className="relative h-11 w-11 shrink-0">
+                <label className="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-amber-300 bg-amber-50 text-lg text-amber-500 hover:bg-amber-100"
+                  title="메뉴 사진 추가">
+                  {m.preview ? <img src={m.preview} alt={`${m.name || "메뉴"} 사진`} className="h-full w-full object-cover" /> : <span aria-hidden="true">📷</span>}
+                  <input type="file" accept="image/*" className="sr-only" aria-label={`${i + 1}번 메뉴 사진`}
+                    onChange={(e) => { setMenuPhoto(i, e.target.files?.[0] ?? null); e.target.value = ""; }} />
+                </label>
+                {m.preview && (
+                  <button type="button" onClick={() => setMenuPhoto(i, null)}
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-[10px] text-white" aria-label="사진 삭제">✕</button>
+                )}
+              </div>
+              <input value={m.name} onChange={(e) => updateMenu(i, "name", e.target.value)} placeholder="메뉴 이름 (예: 휘낭시에)" className={`${inputCls} min-w-0 flex-[2]`} />
+              <input value={m.price} inputMode="numeric" onChange={(e) => updateMenu(i, "price", e.target.value)} placeholder="가격" className={`${inputCls} min-w-0 flex-1`} />
               {menus.length > 1 && (
-                <button type="button" onClick={() => setMenus((prev) => prev.filter((_, idx) => idx !== i))}
+                <button type="button" onClick={() => { if (m.preview) URL.revokeObjectURL(m.preview); setMenus((prev) => prev.filter((_, idx) => idx !== i)); }}
                   className="px-1 text-gray-400 hover:text-gray-700" aria-label="메뉴 삭제">✕</button>
               )}
             </div>
           ))}
         </div>
         {menus.length < MAX_MENUS && (
-          <button type="button" onClick={() => setMenus((prev) => [...prev, { name: "", price: "" }])}
+          <button type="button" onClick={() => setMenus((prev) => [...prev, { name: "", price: "", file: null, preview: null }])}
             className="mt-2 text-sm font-medium text-amber-600 hover:text-amber-700">+ 메뉴 추가</button>
         )}
 
@@ -290,6 +345,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
           </div>
         </div>
 
+        {uploadMsg && <p className="mt-4 text-sm text-amber-700">{uploadMsg}</p>}
         {error && <p className="mt-4 text-sm text-rose-500">{error}</p>}
 
         <div className="mt-5 flex gap-2">

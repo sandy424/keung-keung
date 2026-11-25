@@ -5,7 +5,7 @@ import { CURRENT_REGION } from "../../config/region";
 import { formatScore, toScore } from "../../utils/rating";
 import { searchStores } from "../../utils/search";
 import StarIcon from "../StarIcon";
-import { lookOf } from "./look";
+import { coverPhoto, lookOf } from "./look";
 
 const MOODS = [
   { label: "☔ 비 오는 날", prompt: "비 오는 날 따뜻하게 쉬어가기 좋은 디저트 가게" },
@@ -157,7 +157,7 @@ export default function AiRecommend({ stores }: { stores: Store[] }) {
                   <button onClick={() => nav(`/shop/${store.id}`)}
                     className="flex w-full items-start gap-3 rounded-2xl border border-amber-100 p-3 text-left transition hover:border-amber-300 hover:bg-amber-50/50">
                     <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-3xl ${look.bg}`}>
-                      {look.emoji[0]}
+                      {coverPhoto(store) ? <img src={coverPhoto(store)!} alt="" className="h-full w-full rounded-xl object-cover" /> : look.emoji[0]}
                       <span className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-400 text-[11px] font-bold text-white">{i + 1}</span>
                     </span>
                     <div className="min-w-0 flex-1">

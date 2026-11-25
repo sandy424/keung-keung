@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// Firebase 콘솔 → Storage → 규칙(Rules) 탭에 붙여넣어 게시하세요.
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 메뉴 사진: 누구나 볼 수 있고, 로그인한 사용자만 이미지 파일(5MB 이하)을 올릴 수 있음
+    match /shops/{shopId}/menus/{fileName} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      allow update, delete: if false;
+    }
+
+    // 그 외 경로는 모두 차단
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

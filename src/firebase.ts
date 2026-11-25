@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, setPersistence, inMemoryPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC8x86MQfCPaVHVBlcE-yyfSspPJk6o7ns",
@@ -16,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 
 // 새로고침 시 로그아웃 (메모리에만 세션 유지)
 setPersistence(auth, inMemoryPersistence);
