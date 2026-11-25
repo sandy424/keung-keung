@@ -24,6 +24,16 @@ export type Place = {
   roadAddress: string;
   telephone: string;
   link: string;
+  lat: number | null;
+  lng: number | null;
+};
+
+// mapx/mapy는 WGS84 경위도에 10^7을 곱한 정수 문자열. 한국 범위를 벗어나면 버림
+export const toCoord = (mapx: string, mapy: string) => {
+  const lng = Number(mapx) / 1e7;
+  const lat = Number(mapy) / 1e7;
+  const ok = lat > 33 && lat < 39 && lng > 124 && lng < 132;
+  return ok ? { lat, lng } : { lat: null, lng: null };
 };
 
 const json = (body: unknown, status = 200) =>
@@ -79,6 +89,7 @@ export async function GET(request: Request) {
         roadAddress: item.roadAddress ?? "",
         telephone: item.telephone ?? "",
         link: item.link ?? "",
+        ...toCoord(item.mapx, item.mapy),
       }))
       .filter((p) => (p.roadAddress || p.address).startsWith(REGION_NAME));
 

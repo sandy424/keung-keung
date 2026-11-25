@@ -20,7 +20,40 @@ type Props = { onClose: () => void; onAdded: (store: Store) => void };
 
 type MenuDraft = { name: string; price: string; file: File | null; preview: string | null };
 
-type Place = { name: string; category: string; address: string; roadAddress: string; telephone: string };
+type Place = {
+  name: string;
+  category: string;
+  address: string;
+  roadAddress: string;
+  telephone: string;
+  lat: number | null;
+  lng: number | null;
+};
+
+type Located = { address: string; lat: number; lng: number };
+
+// 네이버 지도 지오코더로 주소 → 좌표 (실패 시 null)
+function geocode(query: string): Promise<Located | null> {
+  return new Promise((resolve) => {
+    const service = window.naver?.maps?.Service;
+    if (!service?.geocode) {
+      console.error("네이버 지도 지오코더를 불러오지 못했어요. Maps 인증과 Geocoding 사용 설정을 확인하세요.");
+      resolve(null);
+      return;
+    }
+    const timer = setTimeout(() => resolve(null), 8000);
+    service.geocode({ query }, (status: string, response: any) => {
+      clearTimeout(timer);
+      const item = response?.v2?.addresses?.[0];
+      if (status !== service.Status.OK || !item) {
+        console.error("지오코딩 실패", { query, status, meta: response?.v2?.meta, error: response?.v2?.errorMessage });
+        resolve(null);
+        return;
+      }
+      resolve({ address: item.roadAddress || item.jibunAddress || query, lat: parseFloat(item.y), lng: parseFloat(item.x) });
+    });
+  });
+}
 
 // 내가 추천하는 디저트 가게를 등록하면 지도에 핀으로 표시됨
 export default function AddStoreCard({ onClose, onAdded }: Props) {
@@ -45,6 +78,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
   const [placeLoading, setPlaceLoading] = useState(false);
   const [placeAvailable, setPlaceAvailable] = useState(true);
   const [picked, setPicked] = useState<string | null>(null);
+  const [pickedPlace, setPickedPlace] = useState<Place | null>(null);
 
   useEffect(() => {
     const q = name.trim();
@@ -78,6 +112,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
 
   const pickPlace = (place: Place) => {
     setPicked(place.name);
+    setPickedPlace(place);
     setName(place.name);
     setAddress(place.roadAddress || place.address);
     if (place.telephone) setTel(place.telephone);
@@ -162,72 +197,78 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
 
     setLoading(true);
 
-    window.naver.maps.Service.geocode({ query: address }, async (status: string, response: any) => {
-      if (status !== window.naver.maps.Service.Status.OK || !response.v2.addresses.length) {
-        setError("주소를 찾을 수 없어요. 정확한 주소를 입력해 주세요.");
-        setLoading(false);
-        return;
-      }
+    // 1) 목록에서 고른 가게이고 주소를 고치지 않았다면 검색 결과 좌표 사용
+    // 2) 아니면 지오코딩 (도로명 → 지번 주소 순으로 시도)
+    const placeAddress = pickedPlace ? pickedPlace.roadAddress || pickedPlace.address : "";
+    let located: Located | null =
+      pickedPlace && address.trim() === placeAddress && pickedPlace.lat !== null && pickedPlace.lng !== null
+        ? { address: placeAddress, lat: pickedPlace.lat, lng: pickedPlace.lng }
+        : await geocode(address.trim());
+    if (!located && pickedPlace?.address && pickedPlace.address !== address.trim()) {
+      located = await geocode(pickedPlace.address);
+    }
 
-      const result = response.v2.addresses[0];
-      const resolved: string = result.roadAddress || result.jibunAddress || "";
+    if (!located) {
+      setError("주소를 찾을 수 없어요. 가게 이름으로 검색해서 목록에서 골라보거나, 도로명 주소를 정확히 입력해 주세요.");
+      setLoading(false);
+      return;
+    }
 
-      // 현재 서비스 지역(부산) 밖의 주소는 등록 불가
-      if (!isInRegion(resolved)) {
-        setError(`지금은 ${CURRENT_REGION.name} 지역 가게만 추천할 수 있어요.`);
-        setLoading(false);
-        return;
-      }
+    // 현재 서비스 지역(부산) 밖의 주소는 등록 불가
+    if (!isInRegion(located.address)) {
+      setError(`지금은 ${CURRENT_REGION.name} 지역 가게만 추천할 수 있어요.`);
+      setLoading(false);
+      return;
+    }
 
-      try {
-        // 문서 id를 먼저 만들어 사진 경로(shops/{id}/menus/...)에 사용
-        const shopRef = doc(collection(db, "shops"));
+    try {
+      // 문서 id를 먼저 만들어 사진 경로(shops/{id}/menus/...)에 사용
+      const shopRef = doc(collection(db, "shops"));
 
-        const photoCount = menuDrafts.filter((m) => m.file).length;
-        if (photoCount) setUploadMsg(`메뉴 사진 ${photoCount}장 올리는 중...`);
-        const finalMenus: Menu[] = await Promise.all(
-          menuDrafts.map(async (m, i) => ({
-            name: m.name.trim(),
-            price: m.price ? Number(m.price.replace(/[^0-9]/g, "")) || null : null,
-            photo: m.file ? await uploadMenuPhoto(shopRef.id, i, m.file) : null,
-          }))
-        );
-        setUploadMsg("");
+      const photoCount = menuDrafts.filter((m) => m.file).length;
+      if (photoCount) setUploadMsg(`메뉴 사진 ${photoCount}장 올리는 중...`);
+      const finalMenus: Menu[] = await Promise.all(
+        menuDrafts.map(async (m, i) => ({
+          name: m.name.trim(),
+          price: m.price ? Number(m.price.replace(/[^0-9]/g, "")) || null : null,
+          photo: m.file ? await uploadMenuPhoto(shopRef.id, i, m.file) : null,
+        }))
+      );
+      setUploadMsg("");
 
-        const newStoreData = {
-          name: name.trim(),
-          address: resolved || address.trim(),
-          tel: tel.trim(),
-          hours: hours.trim(),
-          description: description.trim(),
-          category: selectedCategories,
-          tags: finalTags,
-          menus: finalMenus,
-          region: CURRENT_REGION.id,
-          lat: parseFloat(result.y),
-          lng: parseFloat(result.x),
-          price: null,
-          atmosphere: null,
-          avgRating: null,
-          kindness: null,
-          reviewCount: 0,
-          taste: null,
-          createdBy: auth.currentUser?.uid,
-          recommender: nickname ?? "익명",
-          createdAt: new Date(),
-        };
+      const newStoreData = {
+        name: name.trim(),
+        address: located.address,
+        tel: tel.trim(),
+        hours: hours.trim(),
+        description: description.trim(),
+        category: selectedCategories,
+        tags: finalTags,
+        menus: finalMenus,
+        region: CURRENT_REGION.id,
+        lat: located.lat,
+        lng: located.lng,
+        price: null,
+        atmosphere: null,
+        avgRating: null,
+        kindness: null,
+        reviewCount: 0,
+        taste: null,
+        createdBy: auth.currentUser?.uid,
+        recommender: nickname ?? "익명",
+        createdAt: new Date(),
+      };
 
-        await setDoc(shopRef, newStoreData);
-        onAdded({ id: shopRef.id, ...newStoreData });
-        onClose();
-      } catch (e) {
-        console.error("가게 등록 실패", e);
-        setUploadMsg("");
-        setError("등록에 실패했어요. 사진이 있다면 사진 없이 다시 시도해 보세요.");
-      } finally {
-        setLoading(false);
-      }
-    });
+      await setDoc(shopRef, newStoreData);
+      onAdded({ id: shopRef.id, ...newStoreData });
+      onClose();
+    } catch (e) {
+      console.error("가게 등록 실패", e);
+      setUploadMsg("");
+      setError("등록에 실패했어요. 사진이 있다면 사진 없이 다시 시도해 보세요.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -240,7 +281,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
 
         <label className="mb-1 block text-sm font-medium text-gray-700">가게명 *</label>
         <div className="relative">
-          <input value={name} onChange={(e) => { setName(e.target.value); setPicked(null); }}
+          <input value={name} onChange={(e) => { setName(e.target.value); setPicked(null); setPickedPlace(null); }}
             onFocus={() => places.length && setPlaceOpen(true)}
             onBlur={() => setTimeout(() => setPlaceOpen(false), 150)}
             placeholder={placeAvailable ? "가게 이름을 검색해 보세요" : "예: 이앤디스튜디오"} className={inputCls}
