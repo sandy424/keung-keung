@@ -38,7 +38,7 @@ export default function Hotplace() {
 
   return (
     <div className="relative mx-auto h-full w-full max-w-175">
-      <div className="h-full overflow-y-auto pb-36 pt-6">
+      <div className="no-scrollbar h-full overflow-y-auto pb-36 pt-6">
         <div className="mx-auto max-w-lg px-4">
           {/* 프로필 영역 */}
           <section className="flex items-center gap-5">
@@ -57,7 +57,7 @@ export default function Hotplace() {
           </div>
 
           {/* 카테고리 = 하이라이트 */}
-          <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
+          <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => setCategory(c)}
                 className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition ${
