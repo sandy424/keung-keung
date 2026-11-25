@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { CURRENT_REGION, isInRegion } from "../config/region";
@@ -6,6 +6,7 @@ import useAuth from "../hooks/useAuth";
 import type { Menu, Store } from "../types/store";
 import { normalize, searchStores } from "../utils/search";
 import useStores from "../hooks/useStores";
+import { guessCategories } from "../utils/naver";
 
 const CATEGORIES = ["빵", "케이크", "타르트", "구움과자", "기타"];
 const MAX_MENUS = 5;
@@ -15,6 +16,8 @@ const inputCls =
   "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-amber-400 focus:bg-white focus:outline-none";
 
 type Props = { onClose: () => void; onAdded: (store: Store) => void };
+
+type Place = { name: string; category: string; address: string; roadAddress: string; telephone: string };
 
 // 내가 추천하는 디저트 가게를 등록하면 지도에 핀으로 표시됨
 export default function AddStoreCard({ onClose, onAdded }: Props) {
@@ -32,6 +35,54 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
   const [tagInput, setTagInput] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 네이버 장소 검색 (가게 이름 입력 → 실제 가게 선택)
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [placeOpen, setPlaceOpen] = useState(false);
+  const [placeLoading, setPlaceLoading] = useState(false);
+  const [placeAvailable, setPlaceAvailable] = useState(true);
+  const [picked, setPicked] = useState<string | null>(null);
+
+  useEffect(() => {
+    const q = name.trim();
+    if (!placeAvailable || q.length < 2 || q === picked) {
+      setPlaces([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setPlaceLoading(true);
+      try {
+        const res = await fetch(`/api/places?query=${encodeURIComponent(q)}`, { signal: controller.signal });
+        if (res.status === 404 || res.status === 503) {
+          setPlaceAvailable(false); // 로컬 개발(vite) 또는 키 미설정 → 직접 입력
+          return;
+        }
+        const data = res.ok ? await res.json() : { places: [] };
+        setPlaces(data.places ?? []);
+        setPlaceOpen(true);
+      } catch {
+        /* 입력이 바뀌어 취소된 요청 */
+      } finally {
+        setPlaceLoading(false);
+      }
+    }, 350); // 디바운스
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [name, picked, placeAvailable]);
+
+  const pickPlace = (place: Place) => {
+    setPicked(place.name);
+    setName(place.name);
+    setAddress(place.roadAddress || place.address);
+    if (place.telephone) setTel(place.telephone);
+    const guessed = guessCategories(place.category);
+    if (guessed.length) setSelectedCategories((prev) => Array.from(new Set([...prev, ...guessed])));
+    setPlaceOpen(false);
+    setPlaces([]);
+  };
 
   // 이미 등록된 가게인지 이름으로 미리 알려줌
   const duplicate = name.trim()
@@ -146,7 +197,33 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
         </p>
 
         <label className="mb-1 block text-sm font-medium text-gray-700">가게명 *</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 이앤디스튜디오" className={inputCls} />
+        <div className="relative">
+          <input value={name} onChange={(e) => { setName(e.target.value); setPicked(null); }}
+            onFocus={() => places.length && setPlaceOpen(true)}
+            onBlur={() => setTimeout(() => setPlaceOpen(false), 150)}
+            placeholder={placeAvailable ? "가게 이름을 검색해 보세요" : "예: 이앤디스튜디오"} className={inputCls}
+            role="combobox" aria-expanded={placeOpen} aria-autocomplete="list" />
+          {placeLoading && <span className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin rounded-full border-2 border-amber-200 border-t-amber-500" />}
+          {placeOpen && name.trim().length >= 2 && !placeLoading && (
+            <ul role="listbox" className="absolute inset-x-0 top-[calc(100%+4px)] z-10 overflow-hidden rounded-xl border border-amber-100 bg-white shadow-lg">
+              {places.length === 0 ? (
+                <li className="px-4 py-3 text-xs text-gray-400">{CURRENT_REGION.name}에서 찾은 가게가 없어요. 직접 입력해 주세요.</li>
+              ) : (
+                places.map((p) => (
+                  <li key={`${p.name}-${p.roadAddress}`}>
+                    <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pickPlace(p)}
+                      className="block w-full px-4 py-2.5 text-left hover:bg-amber-50">
+                      <span className="block text-sm font-semibold text-gray-900">{p.name}</span>
+                      <span className="block truncate text-xs text-gray-500">{p.roadAddress || p.address}</span>
+                      {p.category && <span className="block truncate text-[11px] text-gray-400">{p.category}</span>}
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
+        </div>
+        {picked && <p className="mt-1 text-xs text-emerald-600">✓ 네이버에서 찾은 가게 정보로 주소를 채웠어요</p>}
         {duplicate && <p className="mt-1 text-xs text-rose-500">이미 등록된 가게예요: {duplicate.store.name}</p>}
 
         <label className="mb-1 mt-3 block text-sm font-medium text-gray-700">주소 *</label>
