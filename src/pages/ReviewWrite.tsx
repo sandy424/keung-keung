@@ -12,6 +12,7 @@ import {
 import { db } from "../firebase";
 import useAuth from "../hooks/useAuth";
 import useShop from "../hooks/useShop";
+import { loadStores } from "../hooks/useStores";
 import type { Rating, RatingKey, Review } from "../types/store";
 import { EMPTY_RATING, RATING_ITEMS, reviewAvg, summarize } from "../utils/rating";
 import StarIcon from "../components/StarIcon";
@@ -85,6 +86,7 @@ export default function ReviewWrite() {
         createdAt: serverTimestamp(),
       });
 
+      loadStores(true); // 지도·랭킹의 평균 별점 갱신
       nav(`/shop/${id}`, { replace: true });
     } catch (e) {
       console.error("리뷰 저장 실패", e);

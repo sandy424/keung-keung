@@ -33,7 +33,7 @@ export default function App() {
   const [inputValue, setInputValue] = useState("");
   const [query, setQuery] = useState("");
 
-  const handleSearch = () => setQuery(inputValue);
+  const handleSearch = (value: string) => setQuery(value.trim());
   const handleClear = () => {
     setInputValue("");
     setQuery("");
@@ -54,8 +54,8 @@ export default function App() {
       <Header inputValue={inputValue} onSearch={handleSearch} onInputChange={setInputValue} onClear={handleClear} query={query} />
       <main className="min-h-0 flex-1 overflow-hidden">
         <Routes>
-          <Route path="/" element={<Home query={query} />} />
-          <Route path="/intro" element={<Home query={query} />} />
+          <Route path="/" element={<Home query={query} onClearQuery={handleClear} />} />
+          <Route path="/intro" element={<Home query={query} onClearQuery={handleClear} />} />
           <Route path="/hotplace" element={<Hotplace />} />
           <Route path="/saved" element={<Saved />} />
           <Route path="/mypage" element={<Mypage />} />

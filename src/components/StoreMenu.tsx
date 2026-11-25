@@ -10,7 +10,7 @@ export default function StoreMenu({ menus = [] }: { menus?: Menu[] }) {
         <li key={`${m.name}-${i}`} className="flex items-baseline gap-4">
           <span className="whitespace-nowrap text-lg font-semibold">{m.name}</span>
           <span className="flex-1 border-b border-dotted border-gray-300" />
-          <span className="whitespace-nowrap text-gray-600">{Number(m.price).toLocaleString()}원</span>
+          <span className="whitespace-nowrap text-gray-600">{m.price ? `${Number(m.price).toLocaleString()}원` : "가격 정보 없음"}</span>
         </li>
       ))}
     </ul>

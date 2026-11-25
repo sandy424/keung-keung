@@ -9,6 +9,7 @@ import StoreMenu from "../components/StoreMenu";
 import StoreReview from "../components/StoreReview";
 import HeartIcon from "../components/HeartIcon";
 import StarIcon from "../components/StarIcon";
+import TagList from "../components/TagList";
 
 const TABS = ["정보", "메뉴", "리뷰"] as const;
 type Tab = (typeof TABS)[number];
@@ -67,11 +68,7 @@ export default function Detail() {
 
       <div className="px-6 sm:px-12">
         {/* 상단 - 가게 이름, 카테고리, 평균 별점, 후기 개수 */}
-        <div className="flex flex-wrap gap-1.5">
-          {(store.category ?? []).map((c) => (
-            <span key={c} className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-500">{c}</span>
-          ))}
-        </div>
+        <TagList store={store} />
         <div className="mt-3 flex items-start justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-900">{store.name}</h1>
           <button type="button" onClick={toggle}
@@ -87,6 +84,7 @@ export default function Detail() {
             <StarIcon size={20} /> {formatScore(avg ?? store.avgRating)}
           </span>
           <span className="text-sm text-gray-500">후기 {count}개</span>
+          {store.recommender && <span className="text-sm text-gray-400">· 💌 {store.recommender}님의 추천</span>}
         </div>
 
         {/* 탭 */}

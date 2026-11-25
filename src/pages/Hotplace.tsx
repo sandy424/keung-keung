@@ -1,120 +1,129 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
 import type { Store } from "../types/store";
 import { formatScore, toScore } from "../utils/rating";
-import { CURRENT_REGION, regionOf } from "../config/region";
+import { CURRENT_REGION } from "../config/region";
+import useStores from "../hooks/useStores";
 import Bottombar from "../components/Bottombar";
 import StarIcon from "../components/StarIcon";
+import AiRecommend from "../components/hotplace/AiRecommend";
+import { lookOf } from "../components/hotplace/look";
 
 const CATEGORIES = ["전체", "빵", "케이크", "타르트", "구움과자", "기타"];
-const MEDAL = ["🥇", "🥈", "🥉"];
+const GRID = 9; // 3 x 3
 
-// 핫플레이스 - 평점 랭킹 (평균 별점 → 후기 수 순)
+// 핫플레이스 - 인스타그램 프로필 형태의 3x3 랭킹 (칸 클릭 → 가게 상세) + 킁킁이의 추천
 export default function Hotplace() {
   const nav = useNavigate();
-  const [stores, setStores] = useState<Store[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { stores, status } = useStores();
   const [category, setCategory] = useState("전체");
 
-  useEffect(() => {
-    getDocs(collection(db, "shops"))
-      .then((snap) => setStores(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Store, "id">) }))))
-      .catch((e) => console.error("랭킹 불러오기 실패", e))
-      .finally(() => setLoading(false));
-  }, []);
-
+  // 평균 별점 → 후기 수 순
   const ranking = useMemo(
     () =>
       stores
-        .filter((s) => regionOf(s) === CURRENT_REGION.id)
         .filter((s) => toScore(s.avgRating) !== null)
         .filter((s) => category === "전체" || (s.category ?? []).includes(category))
         .sort(
           (a, b) =>
             (toScore(b.avgRating) ?? 0) - (toScore(a.avgRating) ?? 0) ||
             (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
-        ),
+        )
+        .slice(0, GRID),
     [stores, category]
   );
 
-  const top3 = ranking.slice(0, 3);
-  const rest = ranking.slice(3);
+  const totalReviews = stores.reduce((acc, s) => acc + (s.reviewCount ?? 0), 0);
+  const loading = status === "idle" || status === "loading";
 
   return (
     <div className="relative mx-auto h-full w-full max-w-175">
-      <div className="h-full overflow-y-auto px-6 pb-36 pt-8">
-        <p className="text-sm font-semibold text-rose-500">🔥 HOT PLACE</p>
-        <h1 className="mt-1 text-2xl font-bold text-amber-950">지금 {CURRENT_REGION.name}에서 제일 달콤한 곳</h1>
-        <p className="mt-1 text-sm text-amber-900/60">킁킁 유저들의 별점으로 매긴 디저트 맛집 랭킹이에요</p>
+      <div className="h-full overflow-y-auto pb-36 pt-6">
+        <div className="mx-auto max-w-lg px-4">
+          {/* 프로필 영역 */}
+          <section className="flex items-center gap-5">
+            <div className="rounded-full bg-gradient-to-tr from-amber-300 via-rose-300 to-rose-400 p-[3px]">
+              <img src="/dessert2.png" alt="" className="h-20 w-20 rounded-full border-[3px] border-[#fff9d4] object-cover sm:h-24 sm:w-24" />
+            </div>
+            <div className="flex flex-1 justify-around text-center">
+              <div><p className="text-lg font-bold text-amber-950">{stores.length}</p><p className="text-xs text-amber-900/60">맛집</p></div>
+              <div><p className="text-lg font-bold text-amber-950">{totalReviews}</p><p className="text-xs text-amber-900/60">후기</p></div>
+              <div><p className="text-lg font-bold text-amber-950">TOP {GRID}</p><p className="text-xs text-amber-900/60">랭킹</p></div>
+            </div>
+          </section>
+          <div className="mt-3">
+            <h1 className="font-bold text-amber-950">🔥 지금 {CURRENT_REGION.name}에서 제일 달콤한 곳</h1>
+            <p className="text-sm text-amber-900/60">킁킁 유저들의 별점으로 매긴 디저트 맛집 랭킹이에요</p>
+          </div>
 
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          {CATEGORIES.map((c) => (
-            <button key={c} onClick={() => setCategory(c)}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition ${
-                category === c ? "bg-amber-950 text-white" : "bg-white text-amber-950/70 hover:bg-amber-100"
-              }`}>
-              {c}
-            </button>
-          ))}
+          {/* 카테고리 = 하이라이트 */}
+          <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
+            {CATEGORIES.map((c) => (
+              <button key={c} onClick={() => setCategory(c)}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                  category === c ? "bg-amber-950 text-white" : "bg-white text-amber-950/70 hover:bg-amber-100"
+                }`}>
+                {c}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {loading ? (
-          <div className="mt-6 space-y-3">
-            {[0, 1, 2].map((i) => <div key={i} className="h-24 animate-pulse rounded-3xl bg-amber-100" />)}
-          </div>
-        ) : ranking.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 pt-16 text-center">
-            <img src="/dessert1.png" alt="" className="w-32 rounded-full" />
-            <p className="font-bold text-amber-950">아직 랭킹에 오른 가게가 없어요</p>
-            <p className="text-sm text-amber-900/60">후기를 남기면 랭킹에 반영돼요!</p>
-          </div>
-        ) : (
-          <>
-            {/* TOP 3 */}
-            <ol className="mt-6 space-y-3">
-              {top3.map((s, i) => (
-                <li key={s.id}>
-                  <button onClick={() => nav(`/shop/${s.id}`)}
-                    className={`flex w-full items-center gap-4 rounded-3xl p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-                      i === 0 ? "bg-gradient-to-br from-amber-300 to-rose-300" : "bg-white"
-                    }`}>
-                    <span className="text-4xl">{MEDAL[i]}</span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-lg font-bold text-gray-900">{s.name}</p>
-                      <p className="truncate text-sm text-gray-700/80">{(s.category ?? []).join(" · ")}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="flex items-center justify-end gap-1 text-xl font-extrabold text-gray-900">
-                        <StarIcon size={20} /> {formatScore(s.avgRating)}
-                      </p>
-                      <p className="text-xs text-gray-700/70">후기 {s.reviewCount ?? 0}</p>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ol>
-
-            {rest.length > 0 && (
-              <ol start={4} className="mt-6 divide-y divide-amber-100 rounded-3xl bg-white px-5">
-                {rest.map((s, i) => (
-                  <li key={s.id}>
-                    <button onClick={() => nav(`/shop/${s.id}`)} className="flex w-full items-center gap-4 py-4 text-left">
-                      <span className="w-6 text-center font-bold text-amber-900/50">{i + 4}</span>
-                      <span className="flex-1 truncate font-medium text-gray-900">{s.name}</span>
-                      <span className="flex items-center gap-1 text-sm font-semibold">
-                        <StarIcon size={14} /> {formatScore(s.avgRating)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </>
+        {/* 3 x 3 그리드 */}
+        <div className="mx-auto mt-4 grid max-w-lg grid-cols-3 gap-1 border-t border-amber-900/10 pt-1 sm:gap-1.5">
+          {loading
+            ? Array.from({ length: GRID }, (_, i) => <div key={i} className="aspect-square animate-pulse bg-amber-100" />)
+            : Array.from({ length: GRID }, (_, i) => {
+                const s = ranking[i];
+                return s ? <Tile key={s.id} store={s} rank={i + 1} onOpen={() => nav(`/shop/${s.id}`)} /> : <EmptyTile key={`empty-${i}`} onClick={() => nav("/")} />;
+              })}
+        </div>
+        {!loading && status === "error" && (
+          <p className="mt-3 text-center text-sm text-amber-900/60">가게 정보를 불러오지 못했어요</p>
         )}
+
+        {/* 킁킁이의 추천 */}
+        <div className="mx-auto mt-8 max-w-lg px-4">
+          <AiRecommend stores={stores} />
+        </div>
       </div>
+
       <Bottombar />
     </div>
+  );
+}
+
+function Tile({ store, rank, onOpen }: { store: Store; rank: number; onOpen: () => void }) {
+  const look = lookOf(store.category);
+  return (
+    <button onClick={onOpen} aria-label={`${rank}위 ${store.name}`}
+      className={`group relative aspect-square overflow-hidden bg-gradient-to-br ${look.bg}`}>
+      <span className="absolute inset-0 flex items-center justify-center text-5xl transition duration-300 group-hover:scale-110 sm:text-6xl">
+        {look.emoji[0]}
+      </span>
+      <span className={`absolute left-1.5 top-1.5 rounded-full px-2 py-0.5 text-[11px] font-extrabold ${
+        rank === 1 ? "bg-amber-400 text-white" : rank <= 3 ? "bg-white text-amber-950" : "bg-white/70 text-amber-950/70"
+      }`}>
+        {rank}
+      </span>
+      {/* 이름은 항상, 별점·후기는 호버 시 */}
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2 pb-1.5 pt-5 text-left">
+        <span className="block truncate text-xs font-bold text-white sm:text-sm">{store.name}</span>
+      </span>
+      <span className="absolute inset-0 flex items-center justify-center gap-3 bg-black/40 text-sm font-bold text-white opacity-0 transition group-hover:opacity-100">
+        <span className="flex items-center gap-1"><StarIcon size={16} /> {formatScore(store.avgRating)}</span>
+        <span>💬 {store.reviewCount ?? 0}</span>
+      </span>
+    </button>
+  );
+}
+
+function EmptyTile({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick}
+      className="flex aspect-square flex-col items-center justify-center gap-1 bg-white/50 text-amber-900/40 transition hover:bg-white hover:text-amber-900/70">
+      <span className="text-2xl">＋</span>
+      <span className="text-[11px] font-medium">맛집 추천하기</span>
+    </button>
   );
 }

@@ -6,9 +6,9 @@ html, body, #root {
 }
 
 /* 지도 미니 카드 등장 */
-@keyframes cardUp {
-  from { opacity: 0; transform: translateY(24px) scale(.96); }
-  to { opacity: 1; }
+@keyframes cardPop {
+  from { opacity: 0; transform: scale(.92); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 body {

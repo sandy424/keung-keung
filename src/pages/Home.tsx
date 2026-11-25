@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
-import { Store } from "../types/store";
-import { CURRENT_REGION, regionOf } from "../config/region";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Store } from "../types/store";
+import { CURRENT_REGION } from "../config/region";
+import useStores, { addStoreLocal } from "../hooks/useStores";
+import { searchStores } from "../utils/search";
 
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
@@ -16,6 +16,7 @@ declare global {
       maps: {
         Map: any;
         LatLng: any;
+        LatLngBounds: any;
         Marker: any;
         Event: any;
         Service: any;
@@ -24,9 +25,8 @@ declare global {
   }
 }
 
-function Home({ query }: { query: string }) {
-  const [stores, setStores] = useState<Store[]>([]);
-  const [allStores, setAllStores] = useState<Store[]>([]);
+function Home({ query, onClearQuery }: { query: string; onClearQuery: () => void }) {
+  const { stores: allStores } = useStores();
   const [selected, setSelected] = useState("전체");
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [addModal, setAddModal] = useState(false);
@@ -35,33 +35,23 @@ function Home({ query }: { query: string }) {
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any[]>([]);
 
-  // 데이터 불러오기
-  useEffect(() => {
-    const fetchStores = async () => {
-      const snapshot = await getDocs(collection(db, "shops"));
-
-      const parsedStores: Store[] = snapshot.docs
-        .map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Store, "id">),
-        }))
-        .filter((store) => regionOf(store) === CURRENT_REGION.id);
-
-      setAllStores(parsedStores);
-      setStores(parsedStores);
-    };
-
-    fetchStores();
-  }, []);
+  // 카테고리 + 검색(이름·태그·메뉴) 필터
+  const stores = useMemo(() => {
+    let filtered = allStores;
+    if (selected !== "전체") {
+      filtered = filtered.filter((store) => (store.category ?? []).includes(selected));
+    }
+    if (query.trim()) {
+      filtered = searchStores(filtered, query).map((hit) => hit.store);
+    }
+    return filtered;
+  }, [allStores, selected, query]);
 
   // 지도 생성
   useEffect(() => {
     if (!window.naver?.maps || !mapDivRef.current || mapRef.current) return;
-
-    const location = new window.naver.maps.LatLng(CURRENT_REGION.center.lat, CURRENT_REGION.center.lng);
-
     mapRef.current = new window.naver.maps.Map(mapDivRef.current, {
-      center: location,
+      center: new window.naver.maps.LatLng(CURRENT_REGION.center.lat, CURRENT_REGION.center.lng),
       zoom: CURRENT_REGION.zoom,
     });
   }, []);
@@ -69,83 +59,71 @@ function Home({ query }: { query: string }) {
   // 마커 생성
   useEffect(() => {
     if (!mapRef.current) return;
+    const { maps } = window.naver;
 
-    // 기존 마커 제거
     markerRef.current.forEach((marker) => marker.setMap(null));
     markerRef.current = [];
 
     stores.forEach((store) => {
-      const marker = new window.naver.maps.Marker({
-        position: new window.naver.maps.LatLng(store.lat, store.lng),
+      const marker = new maps.Marker({
+        position: new maps.LatLng(store.lat, store.lng),
         map: mapRef.current,
+        title: store.name,
       });
-
-      // 마커 클릭
-      window.naver.maps.Event.addListener(marker, "click", () => {
+      maps.Event.addListener(marker, "click", () => {
         setSelectedStore(store);
         mapRef.current?.panTo(marker.getPosition());
       });
-
       markerRef.current.push(marker);
     });
-  }, [stores]);
 
-  // 카테고리 및 검색 필터
-  useEffect(() => {
-    let filtered = allStores;
-
-    if (selected !== "전체") {
-      filtered = filtered.filter((store) =>
-        store.category.includes(selected)
-      );
+    // 검색 중이면 결과가 모두 보이도록 지도 범위 조정
+    if (query.trim() && stores.length > 0) {
+      if (stores.length === 1) {
+        mapRef.current.morph(new maps.LatLng(stores[0].lat, stores[0].lng), 16);
+        setSelectedStore(stores[0]);
+      } else {
+        const bounds = new maps.LatLngBounds(
+          new maps.LatLng(stores[0].lat, stores[0].lng),
+          new maps.LatLng(stores[0].lat, stores[0].lng)
+        );
+        stores.forEach((s) => bounds.extend(new maps.LatLng(s.lat, s.lng)));
+        mapRef.current.fitBounds(bounds, { top: 80, right: 60, bottom: 140, left: 60 });
+      }
     }
-
-    if (query.trim() !== "") {
-      filtered = filtered.filter((store) =>
-        store.name.includes(query.trim())
-      );
-    }
-
-    setStores(filtered);
-  }, [selected, allStores, query]);
-
-  const handleSelected = (category: string) => {
-    setSelected(category);
-  };
-
-  // 새 가게 등록 시 로컬 state에도 바로 반영
-  const handleStoreAdded = (newStore: Store) => {
-    setAllStores((prev) => [...prev, newStore]);
-  };
+  }, [stores, query]);
 
   return (
     <div className="relative mx-auto h-full w-full max-w-175">
       <div ref={mapDivRef} className="h-full w-full" />
 
-      <StoreCard
-        store={selectedStore}
-        onClose={() => setSelectedStore(null)}
-      />
+      {/* 검색 결과 안내 */}
+      {query.trim() && (
+        <div className="absolute left-1/2 top-4 z-10 flex max-w-[calc(100%-7rem)] -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-white py-2 pl-4 pr-2 text-sm shadow-lg">
+          <span className="truncate">
+            ‘<b>{query}</b>’ {stores.length > 0 ? <>검색 결과 <b className="text-amber-600">{stores.length}곳</b></> : "검색 결과가 없어요"}
+          </span>
+          <button onClick={onClearQuery} className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-200">
+            해제 ✕
+          </button>
+        </div>
+      )}
 
-      <Category
-        selected={selected}
-        onSelect={handleSelected}
-      />
+      <StoreCard store={selectedStore} onClose={() => setSelectedStore(null)} />
 
-      {/* 가게 등록 버튼 */}
+      <Category selected={selected} onSelect={setSelected} />
+
+      {/* 추천 가게 등록 버튼 */}
       <button
         onClick={() => setAddModal(true)}
-        className="absolute right-5 bottom-24 h-12 w-12 flex items-center justify-center rounded-full bg-rose-400 text-white text-2xl shadow-md hover:bg-rose-500"
+        className="absolute bottom-28 right-5 z-10 flex h-12 items-center gap-1.5 rounded-full bg-rose-400 px-4 font-semibold text-white shadow-lg transition hover:bg-rose-500 active:scale-95"
+        aria-label="내가 추천하는 가게 등록"
       >
-        +
+        <span className="text-xl leading-none">+</span>
+        <span className="text-sm">가게 추천</span>
       </button>
 
-      {addModal && (
-        <AddStoreCard
-          onClose={() => setAddModal(false)}
-          onAdded={handleStoreAdded}
-        />
-      )}
+      {addModal && <AddStoreCard onClose={() => setAddModal(false)} onAdded={addStoreLocal} />}
       <Bottombar />
     </div>
   );
