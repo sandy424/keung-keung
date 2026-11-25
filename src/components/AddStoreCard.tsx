@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { db, auth } from "../firebase";
+import { CURRENT_REGION, isInRegion } from "../config/region";
 
 const categories = ["빵", "케이크", "타르트", "구움과자", "기타"];
 
@@ -44,6 +45,14 @@ export default function AddStoreModal({ onClose, onAdded }: { onClose: () => voi
         }
 
         const result = response.v2.addresses[0];
+        const resolved: string = result.roadAddress || result.jibunAddress || "";
+
+        // 현재 서비스 지역(부산) 밖의 주소는 등록 불가
+        if (!isInRegion(resolved)) {
+          setError(`지금은 ${CURRENT_REGION.name} 지역 가게만 등록할 수 있어요.`);
+          setLoading(false);
+          return;
+        }
         const lat = parseFloat(result.y);
         const lng = parseFloat(result.x);
 
@@ -55,6 +64,7 @@ export default function AddStoreModal({ onClose, onAdded }: { onClose: () => voi
             hours: hours.trim(),
             description: description.trim(),
             category: selectedCategories,
+            region: CURRENT_REGION.id,
             lat,
             lng,
             menus: [],
@@ -83,7 +93,8 @@ export default function AddStoreModal({ onClose, onAdded }: { onClose: () => voi
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">가게 등록하기</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">가게 등록하기</h2>
+        <p className="text-xs text-gray-400 mb-4">현재 {CURRENT_REGION.name} 지역만 등록할 수 있어요</p>
 
         <div className="mb-3">
           <label className="block text-sm font-medium text-gray-700 mb-1">가게명</label>

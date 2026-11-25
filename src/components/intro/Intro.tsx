@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { collection, getCountFromServer } from "firebase/firestore";
 import { db } from "../../firebase";
 import { GLYPH_1, GLYPH_2 } from "./logoGlyphs";
+import { CURRENT_REGION } from "../../config/region";
 import "./intro.css";
 
 const TICKER = ["휘낭시에", "딸기 생크림 케이크", "에그타르트", "소금빵", "마카롱", "바스크 치즈케이크", "까눌레", "크로플", "말차 롤케이크", "스콘"];
@@ -106,7 +107,7 @@ export default function Intro({ onDone }: Props) {
       <button className="kk-skip" onClick={leave}>건너뛰기</button>
 
       <main className="kk-center">
-        <p className="kk-eyebrow">BUSAN · DESSERT · MAP</p>
+        <p className="kk-eyebrow">{CURRENT_REGION.nameEn} · DESSERT · MAP</p>
 
         <h1 className="kk-logo" aria-label="킁킁">
           {[{ d: GLYPH_1, box: "0 0 17 18" }, { d: GLYPH_2, box: "18.35 0 17 18" }].map((g, i) => (
@@ -128,7 +129,7 @@ export default function Intro({ onDone }: Props) {
 
         <p className="kk-tagline">
           달콤한 냄새를 따라가면,<br />
-          <em>부산의 디저트 맛집</em>이 나와요
+          <em>{CURRENT_REGION.name}의 디저트 맛집</em>이 나와요
         </p>
 
         <button className="kk-cta" onClick={leave} autoFocus>

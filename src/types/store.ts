@@ -16,6 +16,7 @@ export type Store = {
   hours?: string
   description?: string
   menus?: Menu[]
+  region?: string
 }
 
 export type RatingKey = "taste" | "mood" | "kind" | "price"

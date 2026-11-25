@@ -4,6 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import type { Store } from "../types/store";
 import { formatScore, toScore } from "../utils/rating";
+import { CURRENT_REGION, regionOf } from "../config/region";
 import Bottombar from "../components/Bottombar";
 import StarIcon from "../components/StarIcon";
 
@@ -27,6 +28,7 @@ export default function Hotplace() {
   const ranking = useMemo(
     () =>
       stores
+        .filter((s) => regionOf(s) === CURRENT_REGION.id)
         .filter((s) => toScore(s.avgRating) !== null)
         .filter((s) => category === "전체" || (s.category ?? []).includes(category))
         .sort(
@@ -44,7 +46,7 @@ export default function Hotplace() {
     <div className="relative mx-auto h-full w-full max-w-175">
       <div className="h-full overflow-y-auto px-6 pb-36 pt-8">
         <p className="text-sm font-semibold text-rose-500">🔥 HOT PLACE</p>
-        <h1 className="mt-1 text-2xl font-bold text-amber-950">지금 부산에서 제일 달콤한 곳</h1>
+        <h1 className="mt-1 text-2xl font-bold text-amber-950">지금 {CURRENT_REGION.name}에서 제일 달콤한 곳</h1>
         <p className="mt-1 text-sm text-amber-900/60">킁킁 유저들의 별점으로 매긴 디저트 맛집 랭킹이에요</p>
 
         <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
