@@ -1,4 +1,5 @@
 import type { Store } from "../types/store";
+import { naverMapUrl } from "../utils/naver";
 
 export default function StoreDoc({ store }: { store: Store }) {
   const rows = [
@@ -17,6 +18,11 @@ export default function StoreDoc({ store }: { store: Store }) {
           <span className="text-gray-900">{value || "정보 없음"}</span>
         </div>
       ))}
+      <a href={naverMapUrl(store)} target="_blank" rel="noopener noreferrer"
+        className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#03c75a]/10 px-4 py-2 text-sm font-semibold text-[#03a94d] hover:bg-[#03c75a]/20">
+        <span aria-hidden="true">🗺️</span>
+        네이버 지도에서 영업시간·메뉴·사진 보기 ↗
+      </a>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import useStores from "../hooks/useStores";
 import Bottombar from "../components/Bottombar";
 import StarIcon from "../components/StarIcon";
 import AiRecommend from "../components/hotplace/AiRecommend";
-import { lookOf } from "../components/hotplace/look";
+import { coverPhoto, lookOf } from "../components/hotplace/look";
 
 const CATEGORIES = ["전체", "빵", "케이크", "타르트", "구움과자", "기타"];
 const GRID = 9; // 3 x 3
@@ -95,12 +95,17 @@ export default function Hotplace() {
 
 function Tile({ store, rank, onOpen }: { store: Store; rank: number; onOpen: () => void }) {
   const look = lookOf(store.category);
+  const photo = coverPhoto(store);
   return (
     <button onClick={onOpen} aria-label={`${rank}위 ${store.name}`}
       className={`group relative aspect-square overflow-hidden bg-gradient-to-br ${look.bg}`}>
-      <span className="absolute inset-0 flex items-center justify-center text-5xl transition duration-300 group-hover:scale-110 sm:text-6xl">
-        {look.emoji[0]}
-      </span>
+      {photo ? (
+        <img src={photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-110" />
+      ) : (
+        <span className="absolute inset-0 flex items-center justify-center text-5xl transition duration-300 group-hover:scale-110 sm:text-6xl">
+          {look.emoji[0]}
+        </span>
+      )}
       <span className={`absolute left-1.5 top-1.5 rounded-full px-2 py-0.5 text-[11px] font-extrabold ${
         rank === 1 ? "bg-amber-400 text-white" : rank <= 3 ? "bg-white text-amber-950" : "bg-white/70 text-amber-950/70"
       }`}>

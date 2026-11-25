@@ -8,3 +8,7 @@ const LOOKS: Record<string, { emoji: string[]; bg: string }> = {
 };
 
 export const lookOf = (category?: string[]) => LOOKS[category?.[0] ?? "기타"] ?? LOOKS.기타;
+
+// 첫 번째 메뉴 사진을 대표 사진으로 사용
+export const coverPhoto = (store: { menus?: { photo?: string | null }[] }) =>
+  store.menus?.find((m) => m.photo)?.photo ?? null;
