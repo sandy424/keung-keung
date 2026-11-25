@@ -8,6 +8,7 @@ import useAuth from "../hooks/useAuth";
 import useSaved from "../hooks/useSaved";
 import HeartIcon from "./HeartIcon";
 import StarIcon from "./StarIcon";
+import TagList from "./TagList";
 
 type Props = { store: Store | null; onClose: () => void };
 
@@ -51,11 +52,7 @@ export default function StoreCard({ store, onClose }: Props) {
   return (
     <div className="absolute left-1/2 bottom-28 z-20 w-[min(360px,calc(100%-2rem))] -translate-x-1/2 animate-[cardUp_.35s_cubic-bezier(.2,.9,.3,1.2)] rounded-[24px] bg-white p-6 shadow-2xl sm:left-auto sm:right-6 sm:translate-x-0">
       <div className="flex items-center justify-between">
-        <div className="flex flex-wrap gap-1.5">
-          {(store.category ?? []).map((c) => (
-            <span key={c} className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-500">{c}</span>
-          ))}
-        </div>
+        <TagList store={store} max={5} />
         <button className="text-gray-400 hover:text-black" onClick={onClose} aria-label="닫기">✕</button>
       </div>
 
@@ -66,6 +63,8 @@ export default function StoreCard({ store, onClose }: Props) {
           <HeartIcon filled={saved} />
         </button>
       </div>
+
+      {store.recommender && <p className="mt-0.5 text-xs text-gray-400">💌 {store.recommender}님의 추천</p>}
 
       <div className="mt-2 flex items-center gap-3 text-sm text-gray-600">
         <span className="flex items-center gap-1 font-semibold text-gray-900">

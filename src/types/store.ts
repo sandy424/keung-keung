@@ -1,6 +1,6 @@
 export type Menu = {
   name: string
-  price: number
+  price?: number | null
 }
 
 export type Store = {
@@ -17,6 +17,10 @@ export type Store = {
   description?: string
   menus?: Menu[]
   region?: string
+  tags?: string[]
+  // 이 가게를 추천(등록)한 사용자
+  createdBy?: string
+  recommender?: string
 }
 
 export type RatingKey = "taste" | "mood" | "kind" | "price"
