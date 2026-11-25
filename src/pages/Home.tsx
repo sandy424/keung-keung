@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { Store } from "../types/store";
+import { CURRENT_REGION, regionOf } from "../config/region";
 
 import Bottombar from "../components/Bottombar";
 import Category from "../components/Category";
@@ -39,10 +40,12 @@ function Home({ query }: { query: string }) {
     const fetchStores = async () => {
       const snapshot = await getDocs(collection(db, "shops"));
 
-      const parsedStores: Store[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Store, "id">),
-      }));
+      const parsedStores: Store[] = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Store, "id">),
+        }))
+        .filter((store) => regionOf(store) === CURRENT_REGION.id);
 
       setAllStores(parsedStores);
       setStores(parsedStores);
@@ -55,11 +58,11 @@ function Home({ query }: { query: string }) {
   useEffect(() => {
     if (!window.naver?.maps || !mapDivRef.current || mapRef.current) return;
 
-    const location = new window.naver.maps.LatLng(35.1796, 129.0756);
+    const location = new window.naver.maps.LatLng(CURRENT_REGION.center.lat, CURRENT_REGION.center.lng);
 
     mapRef.current = new window.naver.maps.Map(mapDivRef.current, {
       center: location,
-      zoom: 12,
+      zoom: CURRENT_REGION.zoom,
     });
   }, []);
 
@@ -80,6 +83,7 @@ function Home({ query }: { query: string }) {
       // 마커 클릭
       window.naver.maps.Event.addListener(marker, "click", () => {
         setSelectedStore(store);
+        mapRef.current?.panTo(marker.getPosition());
       });
 
       markerRef.current.push(marker);
@@ -115,11 +119,8 @@ function Home({ query }: { query: string }) {
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
-      <div
-        ref={mapDivRef}
-        className="w-full h-full min-h-[calc(100vh-5rem)]"
-      />
+    <div className="relative mx-auto h-full w-full max-w-175">
+      <div ref={mapDivRef} className="h-full w-full" />
 
       <StoreCard
         store={selectedStore}

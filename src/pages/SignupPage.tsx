@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -17,6 +17,8 @@ export default function Signup() {
     const [nicknameStatus, setNicknameStatus] = useState<"idle" | "checking" | "available" | "duplicate">("idle");
 
     const nav = useNavigate();
+    const location = useLocation();
+    const from = (location.state as { from?: string } | null)?.from ?? "/";
 
     // 닉네임 실시간 중복 체크 (디바운싱)
     useEffect(() => {
@@ -85,7 +87,7 @@ export default function Signup() {
         createAt: new Date(),
       });
       
-      nav("/");
+      nav(from, { replace: true });
     } catch (e: any) {
       if (e.code === "auth/email-already-in-use") {
         setError("이미 사용 중인 이메일입니다.");
@@ -100,7 +102,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-yellow-50 flex items-center justify-center p-8">
+    <div className="h-full overflow-y-auto bg-yellow-50 flex items-center justify-center p-8">
       <div className="bg-white rounded-2xl border border-yellow-200 p-10 w-full max-w-sm">
         
         <div className="text-center mb-6">

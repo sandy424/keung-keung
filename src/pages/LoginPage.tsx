@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -11,6 +11,9 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
+  const location = useLocation();
+  // 로그인이 필요해서 넘어온 경우, 원래 보던 페이지로 돌려보냄
+  const from = (location.state as { from?: string } | null)?.from ?? "/";
 
   const handleLogin = async () => {
     setError("");
@@ -37,7 +40,7 @@ export default function Login() {
 
       // 조회한 이메일로 로그인
       await signInWithEmailAndPassword(auth, email, password);
-      nav("/");
+      nav(from, { replace: true });
     } catch (e: any) {
       if (e.code === "auth/user-not-found" || e.code === "auth/wrong-password" || e.code === "auth/invalid-credential") {
         setError("닉네임 또는 비밀번호가 올바르지 않습니다.");
@@ -52,7 +55,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-yellow-50 flex items-center justify-center p-8">
+    <div className="h-full overflow-y-auto bg-yellow-50 flex items-center justify-center p-8">
       <div className="bg-white rounded-2xl border border-yellow-200 p-10 w-full max-w-sm">
 
         <div className="text-center mb-6">
@@ -101,7 +104,7 @@ export default function Login() {
         <p className="text-center text-sm text-yellow-800 mt-4">
           계정이 없으신가요?{" "}
           <span
-            onClick={() => nav("/signup")}
+            onClick={() => nav("/signup", { state: { from } })}
             className="underline cursor-pointer text-yellow-700 font-medium"
           >
             회원가입
