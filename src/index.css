@@ -37,3 +37,12 @@ progress::-moz-progress-bar {
   background: #3b82f6;
   border-radius: 9999px;
 }
+
+/* 스크롤은 되지만 스크롤바는 숨김 */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
