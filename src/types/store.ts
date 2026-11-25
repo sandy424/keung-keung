@@ -1,10 +1,31 @@
-export type Store = {
-  id: string      
+export type Menu = {
   name: string
-  category: string[] 
+  price: number
+}
+
+export type Store = {
+  id: string
+  name: string
+  category: string[]
   address: string
-  tel: string   
+  tel: string
   lat: number
   lng: number
-  avgRating: number 
+  avgRating: number | string | null
+  reviewCount?: number | null
+  hours?: string
+  description?: string
+  menus?: Menu[]
+}
+
+export type RatingKey = "taste" | "mood" | "kind" | "price"
+export type Rating = Record<RatingKey, number>
+
+export type Review = {
+  id: string
+  text: string
+  rating?: Rating
+  userId?: string
+  nickname?: string
+  createdAt?: { toDate: () => Date } | null
 }

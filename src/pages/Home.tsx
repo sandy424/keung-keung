@@ -80,6 +80,7 @@ function Home({ query }: { query: string }) {
       // 마커 클릭
       window.naver.maps.Event.addListener(marker, "click", () => {
         setSelectedStore(store);
+        mapRef.current?.panTo(marker.getPosition());
       });
 
       markerRef.current.push(marker);
@@ -115,11 +116,8 @@ function Home({ query }: { query: string }) {
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-175 min-h-[calc(100vh-5rem)]">
-      <div
-        ref={mapDivRef}
-        className="w-full h-full min-h-[calc(100vh-5rem)]"
-      />
+    <div className="relative mx-auto h-full w-full max-w-175">
+      <div ref={mapDivRef} className="h-full w-full" />
 
       <StoreCard
         store={selectedStore}

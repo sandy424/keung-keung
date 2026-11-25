@@ -36,35 +36,35 @@ export default function Header({inputValue, onInputChange, onSearch, onClear, qu
     }
 
     return(
-        <div className="sticky top-0 z-50 flex items-center justify-center gap-30 bg-white p-5 shadow-sm">
+        <div className="sticky top-0 z-50 flex items-center justify-center gap-3 bg-white px-4 py-3 shadow-sm sm:gap-30 sm:p-5">
             <button onClick={onLogoChange} className="inline-flex items-center justify-center cursor-pointer">
-                <img src='/Logo.svg' width={50} height={30} />
+                <img src='/Logo.svg' width={50} height={30} alt="킁킁 홈" />
             </button>
             
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none">
                 <input
                     type="text"
                     value={inputValue}
                     placeholder='좋아하는 디저트를 검색해보세요.'
                     onChange={(e) => onInputChange(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && onSearch()}
-                    className="w-95 h-10 rounded-full bg-gray-200 px-5 text-sm outline-none ring-0 focus:ring-2 focus:ring-yellow-300"
+                    className="w-full min-w-0 sm:w-95 h-10 rounded-full bg-gray-200 px-5 text-sm outline-none ring-0 focus:ring-2 focus:ring-yellow-300"
                 />
                 {query && (
                     <button onClick={onClear}>
                         ✕
                     </button>
                 )}
-                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-200 hover:bg-sky-300" onClick={onSearch}>
+                <button aria-label="검색" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-200 hover:bg-sky-300" onClick={onSearch}>
                     <img src='/Search.svg' width={24} height={24} />
                 </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2">
                 {userInfo ? (
                     <>
                         {nickname && (
-                            <span className="text-sm text-gray-700">{nickname}님</span>
+                            <span className="hidden text-sm text-gray-700 sm:inline">{nickname}님</span>
                         )}
                         <button className="text-sm text-gray-600 hover:text-black px-2 py-1 cursor-pointer" onClick={handleLogout}>로그아웃</button>
                     </>

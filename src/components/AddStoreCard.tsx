@@ -8,6 +8,8 @@ export default function AddStoreModal({ onClose, onAdded }: { onClose: () => voi
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [tel, setTel] = useState("");
+  const [hours, setHours] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,6 +52,8 @@ export default function AddStoreModal({ onClose, onAdded }: { onClose: () => voi
             name,
             address,
             tel: tel || "",
+            hours: hours.trim(),
+            description: description.trim(),
             category: selectedCategories,
             lat,
             lng,
@@ -110,6 +114,29 @@ export default function AddStoreModal({ onClose, onAdded }: { onClose: () => voi
             value={tel}
             onChange={(e) => setTel(e.target.value)}
             placeholder="예: 051-123-4567"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-yellow-400"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-1">영업시간 (선택)</label>
+          <input
+            type="text"
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+            placeholder="예: 매일 11:00 - 21:00 (월 휴무)"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-yellow-400"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="block text-sm font-medium text-gray-700 mb-1">한 줄 소개 (선택)</label>
+          <input
+            type="text"
+            value={description}
+            maxLength={60}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="예: 바삭한 휘낭시에가 맛있는 광안리 디저트 카페"
             className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-yellow-400"
           />
         </div>
