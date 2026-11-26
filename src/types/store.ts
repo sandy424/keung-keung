@@ -18,8 +18,6 @@ export type Store = {
   description?: string
   menus?: Menu[]
   region?: string
-  // Google Places 가게 ID (전화번호·영업시간 조회용, 약관상 저장 허용)
-  googlePlaceId?: string
   tags?: string[]
   // 이 가게를 추천(등록)한 사용자
   createdBy?: string
