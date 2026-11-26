@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Store } from "../types/store";
-import { formatScore, toScore } from "../utils/rating";
+import { formatScore, rankStores } from "../utils/rating";
 import { CURRENT_REGION } from "../config/region";
 import { ALL, FILTER_CATEGORIES } from "../config/categories";
 import useStores from "../hooks/useStores";
@@ -21,15 +21,7 @@ export default function Hotplace() {
   // 평균 별점 → 후기 수 순
   const ranking = useMemo(
     () =>
-      stores
-        .filter((s) => toScore(s.avgRating) !== null)
-        .filter((s) => category === ALL || (s.category ?? []).includes(category))
-        .sort(
-          (a, b) =>
-            (toScore(b.avgRating) ?? 0) - (toScore(a.avgRating) ?? 0) ||
-            (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
-        )
-        .slice(0, GRID),
+      rankStores(stores.filter((s) => category === ALL || (s.category ?? []).includes(category))).slice(0, GRID),
     [stores, category]
   );
 

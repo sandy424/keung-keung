@@ -46,3 +46,12 @@ export const formatScore = (v: unknown) => {
 
 export const formatDate = (ts?: { toDate: () => Date } | null) =>
   ts?.toDate?.().toLocaleDateString("ko-KR") ?? "";
+
+// 랭킹 정렬: 평균 별점 → 후기 수 순 (별점 없는 가게는 제외)
+export const rankStores = <T extends { avgRating: unknown; reviewCount?: number | null }>(list: T[]) =>
+  list
+    .filter((s) => toScore(s.avgRating) !== null)
+    .sort(
+      (a, b) =>
+        (toScore(b.avgRating) ?? 0) - (toScore(a.avgRating) ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
+    );
