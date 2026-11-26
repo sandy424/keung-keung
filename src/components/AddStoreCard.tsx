@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { CURRENT_REGION, isInRegion } from "../config/region";
@@ -6,10 +6,9 @@ import useAuth from "../hooks/useAuth";
 import type { Menu, Store } from "../types/store";
 import { normalize, searchStores } from "../utils/search";
 import useStores from "../hooks/useStores";
-import { guessCategories } from "../utils/naver";
+import { CATEGORY_LIST, guessCategories } from "../config/categories";
 import { MAX_ORIGINAL_MB, isImage, uploadMenuPhoto } from "../utils/image";
 
-const CATEGORIES = ["빵", "케이크", "타르트", "구움과자", "기타"];
 const MAX_MENUS = 5;
 const MAX_TAGS = 8;
 
@@ -32,7 +31,10 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
   const [tel, setTel] = useState("");
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  // 카테고리: 직접 고르기 전까지는 입력한 정보로 자동 추천
+  const [pickedCategories, setPickedCategories] = useState<string[]>([]);
+  const [categoryTouched, setCategoryTouched] = useState(false);
+  const [naverCategory, setNaverCategory] = useState("");
   const [menus, setMenus] = useState<MenuDraft[]>([{ name: "", price: "", file: null, preview: null }]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -81,8 +83,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
     setName(place.name);
     setAddress(place.roadAddress || place.address);
     if (place.telephone) setTel(place.telephone);
-    const guessed = guessCategories(place.category);
-    if (guessed.length) setSelectedCategories((prev) => Array.from(new Set([...prev, ...guessed])));
+    setNaverCategory(place.category);
     setPlaceOpen(false);
     setPlaces([]);
   };
@@ -92,8 +93,23 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
     ? searchStores(stores, name).find((h) => h.field === "이름" && normalize(h.store.name) === normalize(name))
     : undefined;
 
-  const toggleCategory = (cat: string) =>
-    setSelectedCategories((prev) => (prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]));
+  // 네이버 업종 + 가게 이름 + 메뉴 + 소개 + 태그로 카테고리 추정
+  const autoCategories = useMemo(
+    () => guessCategories(naverCategory, name, description, ...menus.map((m) => m.name), ...tags),
+    [naverCategory, name, description, menus, tags]
+  );
+  const selectedCategories = categoryTouched ? pickedCategories : autoCategories;
+  const autoDiffers =
+    autoCategories.length > 0 &&
+    (autoCategories.length !== pickedCategories.length || autoCategories.some((c) => !pickedCategories.includes(c)));
+
+  // 처음 누르는 순간 자동 추천 결과를 이어받아 직접 고르기로 전환
+  const toggleCategory = (cat: string) => {
+    setCategoryTouched(true);
+    setPickedCategories(
+      selectedCategories.includes(cat) ? selectedCategories.filter((c) => c !== cat) : [...selectedCategories, cat]
+    );
+  };
 
   const addTag = (raw: string) => {
     const tag = raw.replace(/^#/, "").trim();
@@ -273,15 +289,32 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
 
         <label className="mb-2 mt-3 block text-sm font-medium text-gray-700">카테고리 * (중복 선택)</label>
         <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
-            <button key={cat} type="button" onClick={() => toggleCategory(cat)}
-              className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                selectedCategories.includes(cat) ? "border-rose-400 bg-rose-400 text-white" : "border-gray-200 bg-white text-gray-600"
-              }`}>
-              {cat}
-            </button>
-          ))}
+          {CATEGORY_LIST.map(({ name: cat, emoji }) => {
+            const on = selectedCategories.includes(cat);
+            return (
+              <button key={cat} type="button" onClick={() => toggleCategory(cat)} aria-pressed={on}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  on ? "border-rose-400 bg-rose-400 text-white" : "border-gray-200 bg-white text-gray-600"
+                }`}>
+                <span aria-hidden="true">{emoji}</span> {cat}
+              </button>
+            );
+          })}
         </div>
+        {!categoryTouched && autoCategories.length > 0 && (
+          <p className="mt-2 text-xs text-rose-400">✨ 가게 정보를 보고 자동으로 골랐어요. 눌러서 바꿀 수 있어요.</p>
+        )}
+        {!categoryTouched && autoCategories.length === 0 && (
+          <p className="mt-2 text-xs text-gray-400">가게 이름이나 메뉴를 입력하면 카테고리를 자동으로 골라줘요.</p>
+        )}
+        {categoryTouched && autoDiffers && (
+          <p className="mt-2 flex flex-wrap items-center gap-1 text-xs text-gray-500">
+            ✨ 자동 추천: {autoCategories.join(", ")}
+            <button type="button" onClick={() => setCategoryTouched(false)} className="font-medium text-rose-500 underline underline-offset-2">
+              추천대로 하기
+            </button>
+          </p>
+        )}
 
         {/* 추천 메뉴 */}
         <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">추천 메뉴 <span className="font-normal text-gray-400">(📷 눌러 사진 추가)</span></label>

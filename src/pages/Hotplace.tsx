@@ -3,27 +3,27 @@ import { useNavigate } from "react-router-dom";
 import type { Store } from "../types/store";
 import { formatScore, toScore } from "../utils/rating";
 import { CURRENT_REGION } from "../config/region";
+import { ALL, FILTER_CATEGORIES } from "../config/categories";
 import useStores from "../hooks/useStores";
 import Bottombar from "../components/Bottombar";
 import StarIcon from "../components/StarIcon";
 import AiRecommend from "../components/hotplace/AiRecommend";
 import { coverPhoto, lookOf } from "../components/hotplace/look";
 
-const CATEGORIES = ["전체", "빵", "케이크", "타르트", "구움과자", "기타"];
 const GRID = 9; // 3 x 3
 
 // 핫플레이스 - 인스타그램 프로필 형태의 3x3 랭킹 (칸 클릭 → 가게 상세) + 킁킁이의 추천
 export default function Hotplace() {
   const nav = useNavigate();
   const { stores, status } = useStores();
-  const [category, setCategory] = useState("전체");
+  const [category, setCategory] = useState(ALL);
 
   // 평균 별점 → 후기 수 순
   const ranking = useMemo(
     () =>
       stores
         .filter((s) => toScore(s.avgRating) !== null)
-        .filter((s) => category === "전체" || (s.category ?? []).includes(category))
+        .filter((s) => category === ALL || (s.category ?? []).includes(category))
         .sort(
           (a, b) =>
             (toScore(b.avgRating) ?? 0) - (toScore(a.avgRating) ?? 0) ||
@@ -58,7 +58,7 @@ export default function Hotplace() {
 
           {/* 카테고리 = 하이라이트 */}
           <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
-            {CATEGORIES.map((c) => (
+            {FILTER_CATEGORIES.map((c) => (
               <button key={c} onClick={() => setCategory(c)}
                 className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition ${
                   category === c ? "bg-amber-950 text-white" : "bg-white text-amber-950/70 hover:bg-amber-100"

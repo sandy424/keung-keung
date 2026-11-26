@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Store } from "../types/store";
 import { CURRENT_REGION } from "../config/region";
+import { ALL } from "../config/categories";
 import useStores, { addStoreLocal } from "../hooks/useStores";
 import { searchStores } from "../utils/search";
 
@@ -27,7 +28,7 @@ declare global {
 
 function Home({ query, onClearQuery }: { query: string; onClearQuery: () => void }) {
   const { stores: allStores } = useStores();
-  const [selected, setSelected] = useState("전체");
+  const [selected, setSelected] = useState(ALL);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [addModal, setAddModal] = useState(false);
 
@@ -38,7 +39,7 @@ function Home({ query, onClearQuery }: { query: string; onClearQuery: () => void
   // 카테고리 + 검색(이름·태그·메뉴) 필터
   const stores = useMemo(() => {
     let filtered = allStores;
-    if (selected !== "전체") {
+    if (selected !== ALL) {
       filtered = filtered.filter((store) => (store.category ?? []).includes(selected));
     }
     if (query.trim()) {
