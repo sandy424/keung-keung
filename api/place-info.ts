@@ -27,10 +27,31 @@ const json = (body: unknown, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
   });
 
-// 공백·특수문자 제거 후 비교 ("옵스 해운대점" ≈ "옵스해운대점")
-const normalize = (s: string) => s.toLowerCase().replace(/[^0-9a-z가-힣]/g, "");
+// 업종을 나타내는 말은 가게마다 붙였다 뗐다 해서 비교에서 뺌
+const GENERIC = ["카페", "cafe", "커피", "coffee", "베이커리", "bakery", "디저트", "dessert", "제과점", "제과"];
 
-// 이름이 같거나, 한쪽이 다른 쪽을 포함하면 같은 가게로 봄 ("옵스" ⊂ "옵스 해운대점")
+// 단어 하나 정리: 업종 단어 자체면 버리고, 앞에 붙어 있으면 떼어냄 ("카페달조리법" → "달조리법")
+// 떼고 남는 게 너무 짧으면 원래 이름의 일부로 보고 유지 ("커피빈" → 그대로)
+const stripGeneric = (t: string) => {
+  if (GENERIC.includes(t)) return "";
+  const g = GENERIC.find((w) => t.startsWith(w));
+  return g && t.length - g.length >= 2 ? t.slice(g.length) : t;
+};
+
+// 이름 핵심만 남기기
+// "카페달조리법 부산전포본점" → "달조리법부산전포", "달조리법 부산전포점" → "달조리법부산전포"
+export const normalize = (s: string) => {
+  const raw = s.toLowerCase().replace(/[^0-9a-z가-힣\s]/g, " ");
+  const tokens = raw.split(/\s+/).map(stripGeneric).filter(Boolean);
+  if (tokens.length > 1) {
+    // 마지막 지점명의 "본점·지점·직영점·점" 제거 ("부산전포본점" → "부산전포")
+    const last = tokens.length - 1;
+    tokens[last] = tokens[last].replace(/(본점|지점|직영점|점)$/, "") || tokens[last];
+  }
+  return tokens.join("") || raw.replace(/\s/g, "");
+};
+
+// 핵심 이름이 같거나, 한쪽이 다른 쪽을 포함하면 같은 가게로 봄 ("옵스" ⊂ "옵스 해운대점")
 export const sameName = (a: string, b: string) => {
   const x = normalize(a);
   const y = normalize(b);
