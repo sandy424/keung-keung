@@ -9,6 +9,7 @@ import { formatScore, rankStores } from "../utils/rating";
 import { coverPhoto, lookOf } from "../components/hotplace/look";
 import Bottombar from "../components/Bottombar";
 import StarIcon from "../components/StarIcon";
+import HeartIcon from "../components/HeartIcon";
 
 export default function Saved() {
   const nav = useNavigate();
@@ -42,7 +43,7 @@ export default function Saved() {
 
   return (
     <div className="relative mx-auto h-full w-full max-w-175">
-      <div className="h-full overflow-y-auto px-6 pb-36 pt-8">
+      <div className="h-full overflow-y-auto px-5 pb-36 pt-10 sm:px-8">
         {loading ? null : !user ? (
           <div className="flex flex-col items-center gap-4 pt-24 text-center">
             <p className="text-5xl">💝</p>
@@ -52,31 +53,22 @@ export default function Saved() {
           </div>
         ) : (
           <>
-            <h1 className="flex gap-2 text-2xl font-bold text-amber-950">
-              내 찜 목록 {!fetching && <span className="text-rose-500">{savedStore.length}</span>}
+            <h1 className="flex items-baseline gap-2 text-2xl font-bold text-amber-950">
+              저장한 가게 {!fetching && <span className="text-base font-semibold tabular-nums text-amber-900/40">{savedStore.length}</span>}
             </h1>
             {fetching ? (
-              <ul className="mt-5 space-y-3" aria-label="찜 목록 불러오는 중">
+              <ul className="mt-6 space-y-2" aria-label="찜 목록 불러오는 중">
                 {[0, 1, 2].map((i) => (
-                  <li key={i} className="h-20 animate-pulse rounded-3xl bg-white/70" />
+                  <li key={i} className="h-16 animate-pulse rounded-2xl bg-white/70" />
                 ))}
               </ul>
             ) : savedStore.length === 0 ? (
               <EmptySaved />
             ) : (
-              <ul className="mt-5 space-y-3">
+              <ul className="mt-6 divide-y divide-amber-900/10 rounded-2xl border border-amber-900/10 bg-white">
                 {savedStore.map((store) => (
                   <li key={store.id}>
-                    <button onClick={() => nav(`/shop/${store.id}`)}
-                      className="flex w-full items-center gap-3 rounded-3xl bg-white p-5 text-left shadow-sm transition hover:shadow-md">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-bold text-gray-900">{store.name}</p>
-                        <p className="truncate text-sm text-gray-500">{store.address}</p>
-                      </div>
-                      <span className="flex items-center gap-1 text-sm font-semibold">
-                        <StarIcon size={14} /> {formatScore(store.avgRating)}
-                      </span>
-                    </button>
+                    <StoreRow store={store} onOpen={() => nav(`/shop/${store.id}`)} />
                   </li>
                 ))}
               </ul>
@@ -91,45 +83,41 @@ export default function Saved() {
 
 const SUGGEST = 3;
 
-// 찜한 가게가 없을 때: 안내 + 바로 갈 수 있는 버튼 + 인기 가게 추천
+// 찜한 가게가 없을 때: 안내 + 바로가기 + 인기 가게 추천
 function EmptySaved() {
   const nav = useNavigate();
   const { stores } = useStores();
   const popular = useMemo(() => rankStores(stores).slice(0, SUGGEST), [stores]);
 
   return (
-    <div className="mt-8">
-      <section className="flex flex-col items-center rounded-[28px] bg-white/80 px-6 py-10 text-center shadow-sm">
-        <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed border-rose-200 bg-rose-50">
-          <span className="text-5xl" aria-hidden="true">🍰</span>
-          <span className="absolute -right-1 -top-1 flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl shadow" aria-hidden="true">♡</span>
-        </div>
-        <p className="mt-5 text-lg font-bold text-amber-950">아직 찜한 가게가 없어요</p>
-        <p className="mt-1 text-sm leading-relaxed text-gray-500">
-          마음에 드는 가게에서 <span className="font-semibold text-rose-500">♡</span>를 누르면
-          <br />
-          여기에 모아둘 수 있어요
-        </p>
-        <div className="mt-6 flex w-full max-w-xs flex-col gap-2 sm:flex-row">
+    <div className="mt-6">
+      <section className="flex flex-col items-center rounded-2xl border border-amber-900/10 bg-white px-6 py-12 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-amber-900/40">
+          <HeartIcon filled={false} size={22} />
+        </span>
+        <p className="mt-4 font-bold text-amber-950">아직 저장한 가게가 없어요</p>
+        <p className="mt-1 text-sm text-amber-900/50">가게 상세에서 저장하기를 누르면 여기에 모여요</p>
+        <div className="mt-6 flex items-center gap-4 text-sm">
           <button onClick={() => nav("/")}
-            className="flex-1 rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-600">
-            🗺️ 지도에서 찾기
+            className="rounded-xl bg-amber-950 px-5 py-2.5 font-semibold text-white transition hover:bg-amber-900">
+            지도에서 찾기
           </button>
-          <button onClick={() => nav("/hotplace")}
-            className="flex-1 rounded-full border border-amber-200 bg-white px-5 py-2.5 text-sm font-semibold text-amber-900 transition hover:bg-amber-50">
-            🔥 핫플 구경하기
+          <button onClick={() => nav("/hotplace")} className="font-semibold text-amber-950 underline-offset-4 hover:underline">
+            핫플레이스 보기
           </button>
         </div>
       </section>
 
       {popular.length > 0 && (
-        <section className="mt-8">
-          <h2 className="font-bold text-amber-950">이런 곳은 어때요?</h2>
-          <p className="text-xs text-amber-900/60">킁킁 유저들이 별점을 높게 준 가게예요</p>
-          <ul className="mt-3 space-y-2">
+        <section className="mt-10">
+          <div className="mb-3 px-1">
+            <h2 className="text-base font-bold text-amber-950">이런 곳은 어때요?</h2>
+            <p className="text-xs text-amber-900/50">별점이 높은 가게예요</p>
+          </div>
+          <ul className="divide-y divide-amber-900/10 rounded-2xl border border-amber-900/10 bg-white">
             {popular.map((store) => (
               <li key={store.id}>
-                <SuggestCard store={store} onOpen={() => nav(`/shop/${store.id}`)} />
+                <StoreRow store={store} onOpen={() => nav(`/shop/${store.id}`)} />
               </li>
             ))}
           </ul>
@@ -139,21 +127,20 @@ function EmptySaved() {
   );
 }
 
-function SuggestCard({ store, onOpen }: { store: Store; onOpen: () => void }) {
+function StoreRow({ store, onOpen }: { store: Store; onOpen: () => void }) {
   const look = lookOf(store.category);
   const photo = coverPhoto(store);
   return (
-    <button onClick={onOpen}
-      className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:shadow-md">
-      <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br text-3xl ${look.bg}`}>
-        {photo ? <img src={photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : <span aria-hidden="true">{look.emoji[0]}</span>}
+    <button onClick={onOpen} className="flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-amber-50/60">
+      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-amber-50 text-xl" aria-hidden="true">
+        {photo ? <img src={photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : look.emoji[0]}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-bold text-gray-900">{store.name}</span>
-        <span className="block truncate text-xs text-gray-500">{(store.category ?? []).join(" · ") || store.address}</span>
+        <span className="block truncate font-semibold text-amber-950">{store.name}</span>
+        <span className="block truncate text-xs text-amber-900/50">{(store.category ?? []).join(" · ") || store.address}</span>
       </span>
-      <span className="flex shrink-0 items-center gap-1 text-sm font-semibold">
-        <StarIcon size={14} /> {formatScore(store.avgRating)}
+      <span className="flex shrink-0 items-center gap-1 text-sm font-semibold tabular-nums text-amber-950">
+        <StarIcon size={13} /> {formatScore(store.avgRating)}
       </span>
     </button>
   );

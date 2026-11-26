@@ -23,6 +23,14 @@ type MyReview = {
 
 const RECENT_REVIEWS = 3;
 
+// 받침 유무에 따라 을/를
+const objectJosa = (word: string) => {
+  const code = word.charCodeAt(word.length - 1) - 0xac00;
+  return code >= 0 && code <= 11171 && code % 28 !== 0 ? "을" : "를";
+};
+
+const card = "rounded-2xl border border-amber-900/10 bg-white";
+
 export default function Mypage() {
   const nav = useNavigate();
   const { user, nickname, loading } = useAuth();
@@ -70,185 +78,159 @@ export default function Mypage() {
 
   return (
     <div className="relative mx-auto h-full w-full max-w-175">
-      <div className="h-full overflow-y-auto px-6 pb-36 pt-8">
+      <div className="h-full overflow-y-auto px-5 pb-36 pt-10 sm:px-8">
         {loading ? null : !user ? (
-          <div className="flex flex-col items-center gap-4 pt-20 text-center">
-            <img src="/dessert2.png" alt="" className="w-36 rounded-full shadow-lg" />
-            <p className="text-lg font-bold text-amber-950">로그인하고 나만의 디저트 지도를 만들어요</p>
-            <p className="text-sm text-amber-900/60">디저트 도장을 모으고, 내 취향 리포트를 받아보세요</p>
-            <div className="mt-2 flex gap-2">
+          <div className="flex flex-col items-center pt-24 text-center">
+            <img src="/dessert2.png" alt="" className="h-20 w-20 rounded-full object-cover" />
+            <p className="mt-6 text-lg font-bold text-amber-950">로그인하고 나만의 디저트 지도를 만들어요</p>
+            <p className="mt-1 text-sm text-amber-900/60">다녀온 가게와 취향을 한곳에 모아볼 수 있어요</p>
+            <div className="mt-8 flex w-full max-w-xs flex-col gap-2">
               <button onClick={() => nav("/login", { state: { from: "/mypage" } })}
-                className="rounded-full bg-amber-500 px-6 py-2.5 font-semibold text-white hover:bg-amber-600">로그인</button>
+                className="rounded-xl bg-amber-950 py-3 text-sm font-semibold text-white hover:bg-amber-900">로그인</button>
               <button onClick={() => nav("/signup")}
-                className="rounded-full bg-white px-6 py-2.5 font-semibold text-amber-900 hover:bg-amber-100">회원가입</button>
+                className="rounded-xl border border-amber-900/15 bg-white py-3 text-sm font-semibold text-amber-950 hover:bg-amber-50">회원가입</button>
             </div>
           </div>
         ) : (
           <>
-            {/* 프로필 + 레벨 */}
-            <section className="rounded-3xl bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="relative shrink-0">
-                  <img src="/dessert2.png" alt="" className="h-16 w-16 rounded-full object-cover" />
-                  <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-50 text-base shadow" aria-hidden="true">
-                    {level.current.emoji}
-                  </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-amber-600">Lv.{level.level} {level.current.name}</p>
-                  <p className="truncate text-xl font-bold text-gray-900">{nickname ?? "디저트 탐험가"}님</p>
-                  <p className="truncate text-sm text-gray-500">{user.email}</p>
-                </div>
-                <button onClick={handleLogout} className="shrink-0 text-sm text-gray-400 hover:text-gray-700">로그아웃</button>
+            {/* 프로필 */}
+            <header className="flex items-center gap-4">
+              <img src="/dessert2.png" alt="" className="h-14 w-14 shrink-0 rounded-full object-cover ring-1 ring-amber-900/10" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xl font-bold text-amber-950">{nickname ?? "디저트 탐험가"}</p>
+                <p className="truncate text-sm text-amber-900/50">{user.email}</p>
               </div>
+              <button onClick={handleLogout} className="shrink-0 text-sm text-amber-900/40 underline-offset-4 hover:text-amber-950 hover:underline">
+                로그아웃
+              </button>
+            </header>
 
-              <div className="mt-5">
-                <div className="h-2.5 overflow-hidden rounded-full bg-amber-100" role="progressbar"
-                  aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(level.progress * 100)} aria-label="다음 레벨까지 진행률">
-                  <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400 transition-all" style={{ width: `${level.progress * 100}%` }} />
-                </div>
-                <p className="mt-1.5 text-xs text-gray-500">
-                  {level.next
-                    ? <>다음 레벨 <b className="text-gray-700">{level.next.emoji} {level.next.name}</b>까지 {level.remaining}점</>
-                    : "최고 레벨이에요! 부산 디저트는 당신이 접수했어요 👑"}
-                </p>
-                <p className="mt-0.5 text-[11px] text-gray-400">후기·추천 +2점, 찜 +1점</p>
-              </div>
-
-              {/* 활동 숫자 */}
-              <div className="mt-5 grid grid-cols-3 divide-x divide-gray-100 text-center">
-                <button onClick={() => nav("/saved")} className="rounded-xl py-1 hover:bg-rose-50">
-                  <p className="text-xl font-extrabold text-rose-500">{savedIds.length}</p>
-                  <p className="text-xs text-gray-500">찜</p>
-                </button>
-                <a href="#my-reviews" className="rounded-xl py-1 hover:bg-amber-50">
-                  <p className="text-xl font-extrabold text-amber-500">{reviews.length}</p>
-                  <p className="text-xs text-gray-500">후기</p>
-                </a>
-                <a href="#my-recommends" className="rounded-xl py-1 hover:bg-emerald-50">
-                  <p className="text-xl font-extrabold text-emerald-500">{recommended.length}</p>
-                  <p className="text-xs text-gray-500">추천한 가게</p>
-                </a>
-              </div>
-            </section>
-
-            {/* 디저트 도장판 */}
-            <section className="mt-4 rounded-3xl bg-white p-6 shadow-sm">
-              <div className="flex items-baseline justify-between">
-                <h2 className="text-lg font-bold text-amber-950">디저트 도장판</h2>
-                <span className="text-sm font-semibold text-rose-500">{stamp.count} / {stamp.total}</span>
-              </div>
-              <p className="text-xs text-gray-500">후기를 남기면 그 가게의 카테고리 도장이 찍혀요</p>
-              <ul className="mt-4 grid grid-cols-3 gap-3">
-                {stamp.stamps.map((s) => (
-                  <li key={s.name} className="flex flex-col items-center gap-1">
-                    <span className={`flex h-16 w-16 items-center justify-center rounded-full text-3xl transition ${
-                      s.stamped ? `bg-gradient-to-br ${s.look.bg} shadow-sm ring-2 ring-rose-300` : "border-2 border-dashed border-gray-200 grayscale opacity-30"
-                    }`} aria-hidden="true">
-                      {s.emoji}
-                    </span>
-                    <span className={`text-xs ${s.stamped ? "font-semibold text-gray-800" : "text-gray-400"}`}>
-                      {s.name}<span className="sr-only">{s.stamped ? " 도장 받음" : " 아직 없음"}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {stamp.count === stamp.total && (
-                <p className="mt-4 rounded-2xl bg-rose-50 py-2 text-center text-sm font-semibold text-rose-500">🎉 모든 도장을 모았어요!</p>
-              )}
-            </section>
-
-            {/* 취향 리포트 */}
-            <section className="mt-4 rounded-3xl bg-gradient-to-br from-rose-50 to-amber-50 p-6 shadow-sm">
-              <h2 className="text-lg font-bold text-amber-950">나의 디저트 취향</h2>
-              {taste ? (
-                <>
-                  <p className="mt-3 text-sm text-gray-600">나는</p>
-                  <p className="text-2xl font-extrabold text-amber-950">
-                    <span aria-hidden="true">{taste.type.emoji}</span> {taste.type.fan}
+            {/* 레벨 + 활동 */}
+            <section className={`${card} mt-6`}>
+              <div className="p-5">
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-semibold text-amber-950">
+                    Lv.{level.level} <span className="ml-1 font-normal text-amber-900/60">{level.current.name}</span>
                   </p>
-                  <ul className="mt-4 space-y-2">
-                    {taste.ranking.map((t) => (
-                      <li key={t.name} className="flex items-center gap-3 text-sm">
-                        <span className="w-20 shrink-0 text-gray-700">{t.emoji} {t.name}</span>
-                        <span className="h-2 flex-1 overflow-hidden rounded-full bg-white">
-                          <span className="block h-full rounded-full bg-rose-400" style={{ width: `${t.ratio * 100}%` }} />
-                        </span>
-                        <span className="w-10 shrink-0 text-right font-semibold text-gray-700">{Math.round(t.ratio * 100)}%</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {style && (
-                    <div className="mt-4 flex items-center gap-3 rounded-2xl bg-white/80 p-3">
-                      <span className="text-2xl" aria-hidden="true">{style.emoji}</span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900">
-                          {style.label} <span className="font-normal text-gray-500">· 평균 ★ {style.avg.toFixed(1)}</span>
-                        </p>
-                        <p className="text-xs text-gray-500">{style.desc}</p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="mt-2 text-sm text-gray-500">
-                  가게를 찜하거나 후기를 남기면 어떤 디저트를 좋아하는지 분석해 드려요 🔍
+                  <p className="text-xs tabular-nums text-amber-900/40">{level.points}점</p>
+                </div>
+                <div className="mt-3 h-1 overflow-hidden rounded-full bg-amber-900/10" role="progressbar"
+                  aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(level.progress * 100)} aria-label="다음 레벨까지 진행률">
+                  <div className="h-full rounded-full bg-amber-500 transition-all" style={{ width: `${Math.max(level.progress * 100, 2)}%` }} />
+                </div>
+                <p className="mt-2 text-xs text-amber-900/50">
+                  {level.next ? `다음 레벨 '${level.next.name}'까지 ${level.remaining}점 · 후기·추천 2점, 찜 1점` : "최고 레벨에 도달했어요"}
                 </p>
-              )}
+              </div>
+              <div className="grid grid-cols-3 divide-x divide-amber-900/10 border-t border-amber-900/10">
+                <Stat label="찜" value={savedIds.length} onClick={() => nav("/saved")} />
+                <Stat label="후기" value={reviews.length} href="#my-reviews" />
+                <Stat label="추천한 가게" value={recommended.length} href="#my-recommends" />
+              </div>
             </section>
+
+            {/* 취향 분석 */}
+            <Section title="취향 분석">
+              <div className={`${card} p-5`}>
+                {taste ? (
+                  <>
+                    <p className="text-xs text-amber-900/50">{taste.type.fan}</p>
+                    <p className="mt-0.5 text-lg font-bold text-amber-950">
+                      주로 <span className="text-amber-600">{taste.type.name}</span>{objectJosa(taste.type.name)} 즐겨요
+                    </p>
+                    <ul className="mt-5 space-y-3">
+                      {taste.ranking.map((t) => (
+                        <li key={t.name}>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-amber-950">{t.name}</span>
+                            <span className="tabular-nums text-amber-900/50">{Math.round(t.ratio * 100)}%</span>
+                          </div>
+                          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-amber-900/10">
+                            <div className="h-full rounded-full bg-amber-950" style={{ width: `${t.ratio * 100}%` }} />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    {style && (
+                      <div className="mt-5 flex items-center justify-between border-t border-amber-900/10 pt-4 text-sm">
+                        <div>
+                          <p className="font-semibold text-amber-950">{style.label}</p>
+                          <p className="text-xs text-amber-900/50">{style.desc}</p>
+                        </div>
+                        <span className="flex shrink-0 items-center gap-1 font-semibold tabular-nums text-amber-950">
+                          <StarIcon size={14} /> {style.avg.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-amber-900/50">가게를 찜하거나 후기를 남기면 취향을 분석해 드려요.</p>
+                )}
+              </div>
+            </Section>
+
+            {/* 카테고리 컬렉션 */}
+            <Section title="카테고리 컬렉션" meta={`${stamp.count} / ${stamp.total}`}>
+              <div className={`${card} p-5`}>
+                <p className="text-xs text-amber-900/50">후기를 남긴 가게의 카테고리가 채워져요</p>
+                <ul className="mt-4 grid grid-cols-3 gap-2">
+                  {stamp.stamps.map((s) => (
+                    <li key={s.name}
+                      className={`rounded-xl py-2.5 text-center text-sm transition ${
+                        s.stamped ? "bg-amber-950 font-semibold text-white" : "border border-dashed border-amber-900/15 text-amber-900/35"
+                      }`}>
+                      {s.name}
+                      <span className="sr-only">{s.stamped ? " 완료" : " 미완료"}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Section>
 
             {/* 내가 추천한 가게 */}
-            <section id="my-recommends" className="mt-8 scroll-mt-4">
-              <h2 className="mb-3 text-lg font-bold text-amber-950">내가 지도에 올린 가게</h2>
+            <Section id="my-recommends" title="내가 지도에 올린 가게" meta={recommended.length ? `${recommended.length}곳` : undefined}>
               {recommended.length === 0 ? (
-                <button onClick={() => nav("/")}
-                  className="w-full rounded-3xl border-2 border-dashed border-amber-200 bg-white/60 py-6 text-sm text-gray-500 hover:bg-white">
-                  나만 아는 맛집이 있다면 지도에서 <b className="text-amber-700">＋ 추천하기</b>를 눌러보세요
-                </button>
+                <EmptyRow text="아직 추천한 가게가 없어요" action="지도에서 추천하기" onClick={() => nav("/")} />
               ) : (
-                <ul className="no-scrollbar -mx-6 flex gap-3 overflow-x-auto px-6 pb-1">
-                  {recommended.map((s) => <RecommendCard key={s.id} store={s} onOpen={() => nav(`/shop/${s.id}`)} />)}
+                <ul className={`${card} divide-y divide-amber-900/10`}>
+                  {recommended.map((s) => <StoreRow key={s.id} store={s} onOpen={() => nav(`/shop/${s.id}`)} />)}
                 </ul>
               )}
-            </section>
+            </Section>
 
             {/* 내 후기 */}
-            <section id="my-reviews" className="mt-8 scroll-mt-4">
-              <h2 className="mb-3 text-lg font-bold text-amber-950">내 후기</h2>
+            <Section id="my-reviews" title="내 후기" meta={reviews.length ? `${reviews.length}개` : undefined}>
               {reviews.length === 0 ? (
-                <p className="break-keep rounded-3xl bg-white/60 px-6 py-10 text-center text-sm text-gray-500">
-                  아직 작성한 후기가 없어요. 첫 후기로 도장을 받아보세요!
-                </p>
+                <EmptyRow text="아직 작성한 후기가 없어요" action="가게 둘러보기" onClick={() => nav("/hotplace")} />
               ) : (
-                <>
-                  <ul className="space-y-3">
+                <div className={card}>
+                  <ul className="divide-y divide-amber-900/10">
                     {visibleReviews.map((r) => (
                       <li key={r.id}>
-                        <button onClick={() => nav(`/shop/${r.shopId}`)}
-                          className="w-full rounded-3xl bg-white p-5 text-left shadow-sm transition hover:shadow-md">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="truncate font-bold text-gray-900">{r.shopName}</span>
-                            <span className="shrink-0 text-xs text-gray-400">{formatDate(r.createdAt)}</span>
+                        <button onClick={() => nav(`/shop/${r.shopId}`)} className="w-full px-5 py-4 text-left transition hover:bg-amber-50/60">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="truncate font-semibold text-amber-950">{r.shopName}</span>
+                            {r.avg != null && (
+                              <span className="flex shrink-0 items-center gap-1 text-sm font-semibold tabular-nums text-amber-950">
+                                <StarIcon size={13} /> {Number(r.avg).toFixed(1)}
+                              </span>
+                            )}
                           </div>
-                          {r.avg != null && (
-                            <span className="mt-1 flex items-center gap-1 text-sm font-semibold text-gray-700">
-                              <StarIcon size={14} /> {Number(r.avg).toFixed(1)}
-                            </span>
-                          )}
-                          <p className="mt-2 line-clamp-2 text-sm text-gray-600">{r.text}</p>
+                          <p className="mt-1 line-clamp-2 text-sm text-amber-900/70">{r.text}</p>
+                          <p className="mt-2 text-xs text-amber-900/40">{formatDate(r.createdAt)}</p>
                         </button>
                       </li>
                     ))}
                   </ul>
                   {reviews.length > RECENT_REVIEWS && (
                     <button onClick={() => setShowAllReviews((v) => !v)}
-                      className="mt-3 w-full rounded-full bg-white/70 py-2.5 text-sm font-medium text-amber-900 hover:bg-white">
-                      {showAllReviews ? "접기" : `후기 ${reviews.length - RECENT_REVIEWS}개 더 보기`}
+                      className="w-full border-t border-amber-900/10 py-3 text-sm text-amber-900/60 hover:text-amber-950">
+                      {showAllReviews ? "접기" : `${reviews.length - RECENT_REVIEWS}개 더 보기`}
                     </button>
                   )}
-                </>
+                </div>
               )}
-            </section>
+            </Section>
           </>
         )}
       </div>
@@ -257,21 +239,54 @@ export default function Mypage() {
   );
 }
 
-function RecommendCard({ store, onOpen }: { store: Store; onOpen: () => void }) {
+function Section({ id, title, meta, children }: { id?: string; title: string; meta?: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="mt-10 scroll-mt-4">
+      <div className="mb-3 flex items-baseline justify-between px-1">
+        <h2 className="text-base font-bold text-amber-950">{title}</h2>
+        {meta && <span className="text-sm tabular-nums text-amber-900/50">{meta}</span>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Stat({ label, value, href, onClick }: { label: string; value: number; href?: string; onClick?: () => void }) {
+  const inner = (
+    <>
+      <span className="block text-xl font-bold tabular-nums text-amber-950">{value}</span>
+      <span className="mt-0.5 block text-xs text-amber-900/50">{label}</span>
+    </>
+  );
+  const cls = "block py-4 text-center transition hover:bg-amber-50/60";
+  return href ? <a href={href} className={cls}>{inner}</a> : <button onClick={onClick} className={`${cls} w-full`}>{inner}</button>;
+}
+
+function EmptyRow({ text, action, onClick }: { text: string; action: string; onClick: () => void }) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-dashed border-amber-900/15 px-5 py-4 text-sm">
+      <span className="text-amber-900/50">{text}</span>
+      <button onClick={onClick} className="shrink-0 font-semibold text-amber-950 underline-offset-4 hover:underline">{action}</button>
+    </div>
+  );
+}
+
+function StoreRow({ store, onOpen }: { store: Store; onOpen: () => void }) {
   const look = lookOf(store.category);
   const photo = coverPhoto(store);
   return (
-    <li className="w-36 shrink-0">
-      <button onClick={onOpen} className="w-full overflow-hidden rounded-2xl bg-white text-left shadow-sm transition hover:shadow-md">
-        <span className={`relative flex h-20 items-center justify-center overflow-hidden bg-gradient-to-br text-4xl ${look.bg}`} aria-hidden="true">
+    <li>
+      <button onClick={onOpen} className="flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-amber-50/60">
+        <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-amber-50 text-xl" aria-hidden="true">
           {photo ? <img src={photo} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /> : look.emoji[0]}
         </span>
-        <span className="block p-3">
-          <span className="block truncate text-sm font-bold text-gray-900">{store.name}</span>
-          <span className="mt-0.5 flex items-center gap-2 text-xs text-gray-500">
-            <span className="flex items-center gap-0.5"><StarIcon size={12} /> {formatScore(store.avgRating)}</span>
-            <span>💬 {store.reviewCount ?? 0}</span>
-          </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-semibold text-amber-950">{store.name}</span>
+          <span className="block truncate text-xs text-amber-900/50">{(store.category ?? []).join(" · ")}</span>
+        </span>
+        <span className="shrink-0 text-right text-xs tabular-nums text-amber-900/50">
+          <span className="flex items-center justify-end gap-1 text-sm font-semibold text-amber-950"><StarIcon size={13} /> {formatScore(store.avgRating)}</span>
+          후기 {store.reviewCount ?? 0}
         </span>
       </button>
     </li>
