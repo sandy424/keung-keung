@@ -4,10 +4,11 @@ import { db } from "../firebase";
 import useAuth from "../hooks/useAuth";
 import type { Store } from "../types/store";
 import { naverMapUrl } from "../utils/naver";
+import usePlaceInfo from "../hooks/usePlaceInfo";
 
-// 네이버 장소 검색 API는 영업시간을 주지 않고 전화번호도 대부분 비어 있어서,
-// 가게를 추천할 때 직접 입력하지 않으면 정보가 비어 있음.
-// → 비어 있으면 네이버 지도로 바로 확인할 수 있게 하고, 로그인한 사용자가 채울 수 있게 함.
+// 전화번호·영업시간은 Google Places에서 불러옴 (/api/place-info).
+// 네이버 장소 검색 API는 영업시간을 주지 않고 전화번호도 비어 있어서 Google을 사용.
+// Google에도 없거나 불러오지 못하면 → 직접 입력한 값 → 네이버 지도 링크 + 직접 추가 순으로 대체.
 
 type EditableKey = "tel" | "hours";
 
@@ -33,6 +34,11 @@ type Props = { store: Store; onUpdated?: () => void };
 export default function StoreDoc({ store, onUpdated }: Props) {
   const { user } = useAuth();
   const naverUrl = naverMapUrl(store);
+  const place = usePlaceInfo(store);
+  const loading = place.status === "loading";
+  const gPhone = place.info?.phone ?? null;
+  const gHours = place.info?.weekdayText ?? [];
+  const fromGoogle = !!gPhone || gHours.length > 0;
 
   return (
     <div className="pt-2">
@@ -42,18 +48,80 @@ export default function StoreDoc({ store, onUpdated }: Props) {
         <Row icon={<PinIcon />} label="주소">
           <span className="text-amber-950">{store.address}</span>
         </Row>
-        <EditableRow icon={<PhoneIcon />} field="tel" store={store} canEdit={!!user} naverUrl={naverUrl} onUpdated={onUpdated}
-          render={(v) => (
-            <a href={`tel:${v.replace(/[^0-9+]/g, "")}`} className="text-amber-950 underline-offset-4 hover:underline">{v}</a>
-          )} />
-        <EditableRow icon={<ClockIcon />} field="hours" store={store} canEdit={!!user} naverUrl={naverUrl} onUpdated={onUpdated}
-          render={(v) => <span className="whitespace-pre-line text-amber-950">{v}</span>} />
+        {gPhone ? (
+          <Row icon={<PhoneIcon />} label="연락처"><PhoneLink value={gPhone} /></Row>
+        ) : loading && !store.tel ? (
+          <Row icon={<PhoneIcon />} label="연락처"><Skeleton /></Row>
+        ) : (
+          <EditableRow icon={<PhoneIcon />} field="tel" store={store} canEdit={!!user} naverUrl={naverUrl} onUpdated={onUpdated}
+            render={(v) => <PhoneLink value={v} />} />
+        )}
+        {gHours.length > 0 ? (
+          <Row icon={<ClockIcon />} label="영업시간"><WeeklyHours lines={gHours} openNow={place.info?.openNow ?? null} /></Row>
+        ) : loading && !store.hours ? (
+          <Row icon={<ClockIcon />} label="영업시간"><Skeleton /></Row>
+        ) : (
+          <EditableRow icon={<ClockIcon />} field="hours" store={store} canEdit={!!user} naverUrl={naverUrl} onUpdated={onUpdated}
+            render={(v) => <span className="whitespace-pre-line text-amber-950">{v}</span>} />
+        )}
       </dl>
+      {fromGoogle && <p className="mt-2 text-right text-[11px] text-amber-900/40">연락처·영업시간 정보 제공: Google 지도</p>}
 
       <a href={naverUrl} target="_blank" rel="noopener noreferrer"
         className="mt-5 inline-flex items-center gap-1.5 rounded-xl border border-amber-900/15 px-4 py-2 text-sm font-semibold text-amber-950 hover:bg-amber-50">
         네이버 지도에서 사진·리뷰 더 보기 <span aria-hidden="true">↗</span>
       </a>
+    </div>
+  );
+}
+
+function PhoneLink({ value }: { value: string }) {
+  return (
+    <a href={`tel:${value.replace(/[^0-9+]/g, "")}`} className="text-amber-950 underline-offset-4 hover:underline">{value}</a>
+  );
+}
+
+function Skeleton() {
+  return <span className="mt-1 block h-4 w-32 animate-pulse rounded bg-amber-900/10" aria-label="불러오는 중" />;
+}
+
+// Google 영업시간은 월요일부터 7줄 ("월요일: 오전 10:00~오후 9:00")
+function WeeklyHours({ lines, openNow }: { lines: string[]; openNow: boolean | null }) {
+  const [open, setOpen] = useState(false);
+  const todayIdx = (new Date().getDay() + 6) % 7; // 일(0) → 6, 월(1) → 0
+  const split = (line: string) => {
+    const i = line.indexOf(":");
+    return i > 0 ? [line.slice(0, i).trim(), line.slice(i + 1).trim()] : ["", line];
+  };
+  const [, todayHours] = split(lines[todayIdx] ?? lines[0]);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        {openNow !== null && (
+          <span className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${openNow ? "bg-amber-950 text-white" : "bg-amber-900/10 text-amber-900/60"}`}>
+            {openNow ? "영업 중" : "영업 종료"}
+          </span>
+        )}
+        <span className="text-amber-950">오늘 {todayHours}</span>
+      </div>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
+        className="mt-1 text-sm text-amber-900/50 underline-offset-4 hover:text-amber-950 hover:underline">
+        {open ? "접기" : "요일별 보기"}
+      </button>
+      {open && (
+        <ul className="mt-2 space-y-1 text-sm">
+          {lines.map((line, i) => {
+            const [day, hours] = split(line);
+            return (
+              <li key={line} className={`flex gap-3 ${i === todayIdx ? "font-semibold text-amber-950" : "text-amber-900/70"}`}>
+                <span className="w-12 shrink-0">{day}</span>
+                <span>{hours}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
