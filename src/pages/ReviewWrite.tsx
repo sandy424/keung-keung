@@ -34,7 +34,7 @@ export default function ReviewWrite() {
   if (loading || status === "loading") {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-200 border-t-amber-500" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-amber-900/10 border-t-amber-950" />
       </div>
     );
   }
@@ -98,21 +98,21 @@ export default function ReviewWrite() {
   return (
     <div className="mx-auto h-full w-full max-w-175 overflow-y-auto bg-white">
       <div className="flex items-center gap-3 p-5">
-        <button onClick={() => nav(-1)} className="rounded-full bg-gray-100 p-2" aria-label="뒤로가기">
+        <button onClick={() => nav(-1)} className="rounded-full border border-amber-900/10 p-2 hover:bg-amber-50" aria-label="뒤로가기">
           <img src="/Last.svg" width={24} height={24} alt="" />
         </button>
-        <span className="font-semibold text-gray-500">후기 작성</span>
+        <span className="text-sm font-semibold text-amber-900/50">후기 작성</span>
       </div>
 
       <div className="px-6 pb-10 sm:px-12">
-        <h1 className="text-2xl font-bold text-gray-900">{store.name}</h1>
-        <p className="mt-1 text-gray-500">어떠셨나요? 솔직한 후기를 들려주세요 🍰</p>
+        <h1 className="text-2xl font-bold text-amber-950">{store.name}</h1>
+        <p className="mt-1 text-sm text-amber-900/50">어떠셨나요? 솔직한 후기를 들려주세요</p>
 
         {/* 별점 입력 (1~5) */}
-        <div className="mt-8 space-y-5 rounded-3xl bg-amber-50/70 p-6">
+        <div className="mt-8 space-y-5 rounded-2xl border border-amber-900/10 p-6">
           {RATING_ITEMS.map(({ key, label }) => (
             <div key={key} className="flex items-center justify-between gap-3">
-              <span className="w-14 font-semibold text-gray-800">{label}</span>
+              <span className="w-14 text-sm font-semibold text-amber-950">{label}</span>
               <div className="flex gap-1" role="radiogroup" aria-label={`${label} 별점`}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button key={n} type="button" role="radio" aria-checked={rating[key] === n}
@@ -122,7 +122,7 @@ export default function ReviewWrite() {
                   </button>
                 ))}
               </div>
-              <span className="hidden w-20 text-right text-sm text-amber-700 sm:block">
+              <span className="hidden w-20 text-right text-sm text-amber-900/50 sm:block">
                 {SCORE_LABEL[rating[key]]}
               </span>
             </div>
@@ -134,21 +134,21 @@ export default function ReviewWrite() {
           <textarea value={text} maxLength={MAX_LENGTH}
             onChange={(e) => setText(e.target.value.slice(0, MAX_LENGTH))}
             placeholder="디저트 맛, 분위기, 추천 메뉴를 자유롭게 적어주세요"
-            className="h-44 w-full resize-none rounded-2xl border border-gray-200 p-4 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100" />
-          <p className={`mt-1 text-right text-sm ${text.length >= MAX_LENGTH ? "text-rose-500" : "text-gray-400"}`}>
+            className="h-44 w-full resize-none rounded-xl border border-amber-900/15 p-4 text-sm focus:border-amber-950 focus:outline-none" />
+          <p className={`mt-1 text-right text-sm ${text.length >= MAX_LENGTH ? "text-rose-500" : "text-amber-900/40"}`}>
             {text.length} / {MAX_LENGTH}
           </p>
         </div>
 
-        {!allRated && <p className="text-sm text-gray-400">모든 항목의 별점을 선택해 주세요.</p>}
+        {!allRated && <p className="text-sm text-amber-900/40">모든 항목의 별점을 선택해 주세요.</p>}
         {error && <p className="text-sm text-rose-500">{error}</p>}
 
         <div className="mt-6 flex gap-3">
-          <button onClick={() => nav(-1)} className="flex-1 rounded-2xl bg-gray-100 py-4 font-semibold text-gray-600 hover:bg-gray-200">
+          <button onClick={() => nav(-1)} className="flex-1 rounded-xl border border-amber-900/15 py-4 font-semibold text-amber-950 hover:bg-amber-50">
             취소
           </button>
           <button onClick={handleSubmit} disabled={!canSubmit}
-            className="flex-[2] rounded-2xl bg-amber-500 py-4 font-bold text-white transition hover:bg-amber-600 disabled:opacity-40">
+            className="flex-[2] rounded-xl bg-amber-950 py-4 font-semibold text-white transition hover:bg-amber-900 disabled:opacity-30">
             {submitting ? "등록 중..." : "등록하기"}
           </button>
         </div>

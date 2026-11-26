@@ -13,7 +13,7 @@ const MAX_MENUS = 5;
 const MAX_TAGS = 8;
 
 const inputCls =
-  "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-amber-400 focus:bg-white focus:outline-none";
+  "w-full rounded-xl border border-amber-900/15 bg-white px-4 py-2.5 text-sm text-amber-950 placeholder:text-amber-900/35 focus:border-amber-950 focus:outline-none";
 
 type Props = { onClose: () => void; onAdded: (store: Store) => void };
 
@@ -247,33 +247,33 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-lg font-bold text-gray-900">🍰 내가 아는 맛집 추천하기</h2>
-        <p className="mb-5 mt-1 text-xs text-gray-400">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-amber-950/40 p-4" onClick={onClose}>
+      <div className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-2xl border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-950/10" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-lg font-bold text-amber-950">내가 아는 맛집 추천하기</h2>
+        <p className="mb-5 mt-1 text-xs text-amber-900/50">
           추천한 가게는 지도에 바로 표시돼요 · 현재 {CURRENT_REGION.name} 지역만 가능해요
         </p>
 
-        <label className="mb-1 block text-sm font-medium text-gray-700">가게명 *</label>
+        <label className="mb-1 block text-sm font-medium text-amber-950">가게명 *</label>
         <div className="relative">
           <input value={name} onChange={(e) => { setName(e.target.value); setPicked(null); }}
             onFocus={() => places.length && setPlaceOpen(true)}
             onBlur={() => setTimeout(() => setPlaceOpen(false), 150)}
             placeholder={placeAvailable ? "가게 이름을 검색해 보세요" : "예: 이앤디스튜디오"} className={inputCls}
             role="combobox" aria-expanded={placeOpen} aria-autocomplete="list" />
-          {placeLoading && <span className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin rounded-full border-2 border-amber-200 border-t-amber-500" />}
+          {placeLoading && <span className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin rounded-full border-2 border-amber-900/10 border-t-amber-950" />}
           {placeOpen && name.trim().length >= 2 && !placeLoading && (
-            <ul role="listbox" className="absolute inset-x-0 top-[calc(100%+4px)] z-10 overflow-hidden rounded-xl border border-amber-100 bg-white shadow-lg">
+            <ul role="listbox" className="absolute inset-x-0 top-[calc(100%+4px)] z-10 overflow-hidden rounded-xl border border-amber-900/10 bg-white shadow-lg shadow-amber-950/10">
               {places.length === 0 ? (
-                <li className="px-4 py-3 text-xs text-gray-400">{CURRENT_REGION.name}에서 찾은 가게가 없어요. 직접 입력해 주세요.</li>
+                <li className="px-4 py-3 text-xs text-amber-900/50">{CURRENT_REGION.name}에서 찾은 가게가 없어요. 직접 입력해 주세요.</li>
               ) : (
                 places.map((p) => (
                   <li key={`${p.name}-${p.roadAddress}`}>
                     <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pickPlace(p)}
                       className="block w-full px-4 py-2.5 text-left hover:bg-amber-50">
-                      <span className="block text-sm font-semibold text-gray-900">{p.name}</span>
-                      <span className="block truncate text-xs text-gray-500">{p.roadAddress || p.address}</span>
-                      {p.category && <span className="block truncate text-[11px] text-gray-400">{p.category}</span>}
+                      <span className="block text-sm font-semibold text-amber-950">{p.name}</span>
+                      <span className="block truncate text-xs text-amber-900/60">{p.roadAddress || p.address}</span>
+                      {p.category && <span className="block truncate text-[11px] text-amber-900/40">{p.category}</span>}
                     </button>
                   </li>
                 ))
@@ -281,78 +281,78 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
             </ul>
           )}
         </div>
-        {picked && <p className="mt-1 text-xs text-emerald-600">✓ 네이버에서 찾은 가게 정보로 주소를 채웠어요</p>}
+        {picked && <p className="mt-1 text-xs text-amber-900/60">✓ 네이버에서 찾은 가게 정보로 주소를 채웠어요</p>}
         {duplicate && <p className="mt-1 text-xs text-rose-500">이미 등록된 가게예요: {duplicate.store.name}</p>}
 
-        <label className="mb-1 mt-3 block text-sm font-medium text-gray-700">주소 *</label>
+        <label className="mb-1 mt-3 block text-sm font-medium text-amber-950">주소 *</label>
         <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="예: 부산광역시 수영구 수영로540번길 26" className={inputCls} />
 
-        <label className="mb-2 mt-3 block text-sm font-medium text-gray-700">카테고리 * (중복 선택)</label>
+        <label className="mb-2 mt-3 block text-sm font-medium text-amber-950">카테고리 * (중복 선택)</label>
         <div className="flex flex-wrap gap-2">
-          {CATEGORY_LIST.map(({ name: cat, emoji }) => {
+          {CATEGORY_LIST.map(({ name: cat }) => {
             const on = selectedCategories.includes(cat);
             return (
               <button key={cat} type="button" onClick={() => toggleCategory(cat)} aria-pressed={on}
-                className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                  on ? "border-rose-400 bg-rose-400 text-white" : "border-gray-200 bg-white text-gray-600"
+                className={`rounded-lg border px-3 py-1.5 text-sm transition ${
+                  on ? "border-amber-950 bg-amber-950 text-white" : "border-amber-900/15 bg-white text-amber-900/70 hover:bg-amber-50"
                 }`}>
-                <span aria-hidden="true">{emoji}</span> {cat}
+                {cat}
               </button>
             );
           })}
         </div>
         {!categoryTouched && autoCategories.length > 0 && (
-          <p className="mt-2 text-xs text-rose-400">✨ 가게 정보를 보고 자동으로 골랐어요. 눌러서 바꿀 수 있어요.</p>
+          <p className="mt-2 text-xs text-amber-600">가게 정보를 보고 자동으로 골랐어요. 눌러서 바꿀 수 있어요.</p>
         )}
         {!categoryTouched && autoCategories.length === 0 && (
-          <p className="mt-2 text-xs text-gray-400">가게 이름이나 메뉴를 입력하면 카테고리를 자동으로 골라줘요.</p>
+          <p className="mt-2 text-xs text-amber-900/40">가게 이름이나 메뉴를 입력하면 카테고리를 자동으로 골라줘요.</p>
         )}
         {categoryTouched && autoDiffers && (
-          <p className="mt-2 flex flex-wrap items-center gap-1 text-xs text-gray-500">
-            ✨ 자동 추천: {autoCategories.join(", ")}
-            <button type="button" onClick={() => setCategoryTouched(false)} className="font-medium text-rose-500 underline underline-offset-2">
+          <p className="mt-2 flex flex-wrap items-center gap-1 text-xs text-amber-900/50">
+            자동 추천: {autoCategories.join(", ")}
+            <button type="button" onClick={() => setCategoryTouched(false)} className="font-medium text-amber-950 underline underline-offset-2">
               추천대로 하기
             </button>
           </p>
         )}
 
         {/* 추천 메뉴 */}
-        <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">추천 메뉴 <span className="font-normal text-gray-400">(📷 눌러 사진 추가)</span></label>
+        <label className="mb-1 mt-4 block text-sm font-medium text-amber-950">추천 메뉴 <span className="font-normal text-amber-900/40">(왼쪽 칸을 눌러 사진 추가)</span></label>
         <div className="space-y-2">
           {menus.map((m, i) => (
             <div key={i} className="flex items-center gap-2">
               {/* 메뉴 사진 */}
               <div className="relative h-11 w-11 shrink-0">
-                <label className="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-amber-300 bg-amber-50 text-lg text-amber-500 hover:bg-amber-100"
+                <label className="flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-amber-900/20 bg-white text-lg text-amber-900/40 hover:bg-amber-50"
                   title="메뉴 사진 추가">
-                  {m.preview ? <img src={m.preview} alt={`${m.name || "메뉴"} 사진`} className="h-full w-full object-cover" /> : <span aria-hidden="true">📷</span>}
+                  {m.preview ? <img src={m.preview} alt={`${m.name || "메뉴"} 사진`} className="h-full w-full object-cover" /> : <span aria-hidden="true">＋</span>}
                   <input type="file" accept="image/*" className="sr-only" aria-label={`${i + 1}번 메뉴 사진`}
                     onChange={(e) => { setMenuPhoto(i, e.target.files?.[0] ?? null); e.target.value = ""; }} />
                 </label>
                 {m.preview && (
                   <button type="button" onClick={() => setMenuPhoto(i, null)}
-                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-800 text-[10px] text-white" aria-label="사진 삭제">✕</button>
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-950 text-[10px] text-white" aria-label="사진 삭제">✕</button>
                 )}
               </div>
               <input value={m.name} onChange={(e) => updateMenu(i, "name", e.target.value)} placeholder="메뉴 이름 (예: 휘낭시에)" className={`${inputCls} min-w-0 flex-[2]`} />
               <input value={m.price} inputMode="numeric" onChange={(e) => updateMenu(i, "price", e.target.value)} placeholder="가격" className={`${inputCls} min-w-0 flex-1`} />
               {menus.length > 1 && (
                 <button type="button" onClick={() => { if (m.preview) URL.revokeObjectURL(m.preview); setMenus((prev) => prev.filter((_, idx) => idx !== i)); }}
-                  className="px-1 text-gray-400 hover:text-gray-700" aria-label="메뉴 삭제">✕</button>
+                  className="px-1 text-amber-900/40 hover:text-amber-950" aria-label="메뉴 삭제">✕</button>
               )}
             </div>
           ))}
         </div>
         {menus.length < MAX_MENUS && (
           <button type="button" onClick={() => setMenus((prev) => [...prev, { name: "", price: "", file: null, preview: null }])}
-            className="mt-2 text-sm font-medium text-amber-600 hover:text-amber-700">+ 메뉴 추가</button>
+            className="mt-2 text-sm font-medium text-amber-950 underline-offset-4 hover:underline">+ 메뉴 추가</button>
         )}
 
         {/* 태그 */}
-        <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">태그 <span className="font-normal text-gray-400">(Enter로 추가)</span></label>
-        <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 focus-within:border-amber-400 focus-within:bg-white">
+        <label className="mb-1 mt-4 block text-sm font-medium text-amber-950">태그 <span className="font-normal text-amber-900/40">(Enter로 추가)</span></label>
+        <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-amber-900/15 bg-white px-3 py-2 focus-within:border-amber-950">
           {tags.map((t) => (
-            <span key={t} className="flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-sm text-amber-800">
+            <span key={t} className="flex items-center gap-1 rounded-md bg-amber-900/5 px-2 py-0.5 text-sm text-amber-900/80">
               #{t}
               <button type="button" onClick={() => setTags((prev) => prev.filter((x) => x !== t))} aria-label={`${t} 태그 삭제`}>✕</button>
             </span>
@@ -363,28 +363,28 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
             className="min-w-24 flex-1 bg-transparent py-0.5 text-sm outline-none" />
         </div>
 
-        <label className="mb-1 mt-4 block text-sm font-medium text-gray-700">추천 한마디</label>
+        <label className="mb-1 mt-4 block text-sm font-medium text-amber-950">추천 한마디</label>
         <input value={description} maxLength={60} onChange={(e) => setDescription(e.target.value)}
           placeholder="예: 바삭한 휘낭시에가 맛있는 광안리 카페" className={inputCls} />
 
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">전화번호</label>
+            <label className="mb-1 block text-sm font-medium text-amber-950">전화번호</label>
             <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder="051-123-4567" className={inputCls} />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">영업시간</label>
+            <label className="mb-1 block text-sm font-medium text-amber-950">영업시간</label>
             <input value={hours} onChange={(e) => setHours(e.target.value)} placeholder="11:00 - 21:00" className={inputCls} />
           </div>
         </div>
 
-        {uploadMsg && <p className="mt-4 text-sm text-amber-700">{uploadMsg}</p>}
+        {uploadMsg && <p className="mt-4 text-sm text-amber-900/60">{uploadMsg}</p>}
         {error && <p className="mt-4 text-sm text-rose-500">{error}</p>}
 
         <div className="mt-5 flex gap-2">
-          <button onClick={onClose} className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-600">취소</button>
+          <button onClick={onClose} className="flex-1 rounded-xl border border-amber-900/15 py-3 text-sm font-medium text-amber-950 hover:bg-amber-50">취소</button>
           <button onClick={handleSubmit} disabled={loading}
-            className="flex-[2] rounded-xl bg-rose-400 py-3 text-sm font-bold text-white hover:bg-rose-500 disabled:opacity-50">
+            className="flex-[2] rounded-xl bg-amber-950 py-3 text-sm font-semibold text-white hover:bg-amber-900 disabled:opacity-30">
             {loading ? "등록 중..." : "추천하기"}
           </button>
         </div>

@@ -134,9 +134,12 @@ export default function Mypage() {
               <div className={`${card} p-5`}>
                 {taste ? (
                   <>
-                    <p className="text-xs text-amber-900/50">{taste.type.fan}</p>
-                    <p className="mt-0.5 text-lg font-bold text-amber-950">
-                      주로 <span className="text-amber-600">{taste.type.name}</span>{objectJosa(taste.type.name)} 즐겨요
+                    <p className="text-xs font-medium text-amber-900/50">나의 디저트 타입</p>
+                    <p className="mt-1 text-2xl font-extrabold tracking-tight text-amber-950">
+                      {taste.type.fan}<span className="ml-1.5 text-xl" aria-hidden="true">{taste.type.emoji}</span>
+                    </p>
+                    <p className="mt-1 text-sm text-amber-900/60">
+                      주로 <b className="font-semibold text-amber-700">{taste.type.name}</b>{objectJosa(taste.type.name)} 즐겨요
                     </p>
                     <ul className="mt-5 space-y-3">
                       {taste.ranking.map((t) => (

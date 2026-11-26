@@ -80,7 +80,7 @@ export default function ProfileMenu({ user, nickname }: Props) {
         className={`flex items-center gap-2 rounded-full border py-1 pl-1 pr-1 transition sm:pr-2.5 ${
           open ? "border-amber-200 bg-amber-50" : "border-transparent hover:bg-amber-50"
         }`}>
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-rose-300 text-sm font-bold text-white ring-2 ring-white">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-950 text-sm font-bold text-white">
           {initial}
         </span>
         <span className="hidden max-w-24 truncate text-sm font-semibold text-amber-950 sm:inline">{name}</span>
@@ -91,10 +91,10 @@ export default function ProfileMenu({ user, nickname }: Props) {
 
       {open && (
         <div role="menu" aria-label="내 메뉴"
-          className="absolute right-0 top-[calc(100%+8px)] w-60 origin-top-right animate-[cardPop_.15s_ease-out] overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-2xl shadow-amber-900/10">
+          className="absolute right-0 top-[calc(100%+8px)] w-60 origin-top-right animate-[cardPop_.15s_ease-out] overflow-hidden rounded-2xl border border-amber-900/10 bg-white shadow-xl shadow-amber-950/10">
           {/* 프로필 */}
-          <div className="flex items-center gap-3 bg-[#fff9d4]/60 px-4 py-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-rose-300 text-lg font-bold text-white ring-2 ring-white">
+          <div className="flex items-center gap-3 border-b border-amber-900/10 px-4 py-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-950 text-lg font-bold text-white">
               {initial}
             </span>
             <div className="min-w-0">
@@ -108,7 +108,7 @@ export default function ProfileMenu({ user, nickname }: Props) {
               <li key={item.to}>
                 <button role="menuitem" onClick={() => go(item.to)}
                   className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-amber-50 ${
-                    pathname === item.to ? "font-semibold text-amber-950" : "text-gray-700"
+                    pathname === item.to ? "font-semibold text-amber-950" : "text-amber-900/70"
                   }`}>
                   <span className="w-5 text-center" aria-hidden="true">{item.icon}</span>
                   {item.label}
@@ -117,9 +117,9 @@ export default function ProfileMenu({ user, nickname }: Props) {
             ))}
           </ul>
 
-          <div className="border-t border-amber-100 p-1.5">
+          <div className="border-t border-amber-900/10 p-1.5">
             <button role="menuitem" onClick={logout} disabled={loggingOut}
-              className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left text-sm font-medium text-rose-500 hover:bg-rose-50 disabled:opacity-50">
+              className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left text-sm font-medium text-amber-900/60 hover:bg-amber-50 hover:text-amber-950 disabled:opacity-50">
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
               </svg>

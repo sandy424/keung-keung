@@ -55,37 +55,37 @@ export default function Login() {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-yellow-50 flex items-center justify-center p-8">
-      <div className="bg-white rounded-2xl border border-yellow-200 p-10 w-full max-w-sm">
+    <div className="h-full overflow-y-auto flex items-center justify-center p-8">
+      <div className="bg-white rounded-2xl border border-amber-900/10 p-8 sm:p-10 w-full max-w-sm">
 
         <div className="text-center mb-6">
-          <div className="text-4xl mb-1">🍰</div>
-          <h1 className="text-xl font-medium text-yellow-900 tracking-tight">keung-keung</h1>
-          <p className="text-sm text-yellow-700 mt-1">디저트 가게 탐색</p>
+          <img src="/Logo.svg" width={56} height={28} alt="" className="mx-auto mb-3" />
+          <h1 className="text-xl font-bold text-amber-950 tracking-tight">keung-keung</h1>
+          <p className="text-sm text-amber-900/50 mt-1">디저트 가게 탐색</p>
         </div>
 
-        <hr className="border-yellow-100 mb-6" />
+        <hr className="border-amber-900/10 mb-6" />
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">닉네임</label>
+          <label className="block text-sm font-medium text-amber-950 mb-1.5">닉네임</label>
           <input
             type="text"
             placeholder="닉네임을 입력해 주세요"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+            className="w-full border border-amber-900/15 rounded-xl px-4 py-2.5 text-sm bg-white text-amber-950 focus:outline-none focus:border-amber-950 transition"
           />
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">비밀번호</label>
+          <label className="block text-sm font-medium text-amber-950 mb-1.5">비밀번호</label>
           <input
             type="password"
             placeholder="비밀번호를 입력해 주세요"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+            className="w-full border border-amber-900/15 rounded-xl px-4 py-2.5 text-sm bg-white text-amber-950 focus:outline-none focus:border-amber-950 transition"
           />
         </div>
 
@@ -96,16 +96,16 @@ export default function Login() {
         <button
           onClick={handleLogin}
           disabled={loading}
-          className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-3 rounded-xl text-sm transition disabled:opacity-50"
+          className="w-full bg-amber-950 hover:bg-amber-900 text-white font-semibold py-3 rounded-xl text-sm transition disabled:opacity-30"
         >
           {loading ? "로그인 중..." : "로그인"}
         </button>
 
-        <p className="text-center text-sm text-yellow-800 mt-4">
+        <p className="text-center text-sm text-amber-900/60 mt-4">
           계정이 없으신가요?{" "}
           <span
             onClick={() => nav("/signup", { state: { from } })}
-            className="underline cursor-pointer text-yellow-700 font-medium"
+            className="underline cursor-pointer text-amber-950 font-semibold"
           >
             회원가입
           </span>

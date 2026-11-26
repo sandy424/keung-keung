@@ -102,43 +102,43 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-yellow-50 flex items-center justify-center p-8">
-      <div className="bg-white rounded-2xl border border-yellow-200 p-10 w-full max-w-sm">
+    <div className="h-full overflow-y-auto flex items-center justify-center p-8">
+      <div className="bg-white rounded-2xl border border-amber-900/10 p-8 sm:p-10 w-full max-w-sm">
         
         <div className="text-center mb-6">
-          <div className="text-4xl mb-1">🍰</div>
-          <h1 className="text-xl font-medium text-yellow-900 tracking-tight">keung-keung</h1>
-          <p className="text-sm text-yellow-700 mt-1">디저트 가게 탐색</p>
+          <img src="/Logo.svg" width={56} height={28} alt="" className="mx-auto mb-3" />
+          <h1 className="text-xl font-bold text-amber-950 tracking-tight">keung-keung</h1>
+          <p className="text-sm text-amber-900/50 mt-1">디저트 가게 탐색</p>
         </div>
 
-        <hr className="border-yellow-100 mb-6" />
+        <hr className="border-amber-900/10 mb-6" />
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">이메일</label>
+          <label className="block text-sm font-medium text-amber-950 mb-1.5">이메일</label>
           <input
             type="email"
             placeholder="example@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+            className="w-full border border-amber-900/15 rounded-xl px-4 py-2.5 text-sm bg-white text-amber-950 focus:outline-none focus:border-amber-950 transition"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">닉네임</label>
+          <label className="block text-sm font-medium text-amber-950 mb-1.5">닉네임</label>
           <input
             type="text"
             placeholder="사용하실 닉네임을 입력해 주세요"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+            className="w-full border border-amber-900/15 rounded-xl px-4 py-2.5 text-sm bg-white text-amber-950 focus:outline-none focus:border-amber-950 transition"
           />
           {/* 닉네임 상태 실시간 표시 */}
           {nicknameStatus === "checking" && (
-            <p className="text-xs text-gray-400 mt-1.5">확인 중...</p>
+            <p className="text-xs text-amber-900/40 mt-1.5">확인 중...</p>
           )}
           {nicknameStatus === "available" && (
-            <p className="text-xs text-green-600 mt-1.5">사용 가능한 닉네임이에요</p>
+            <p className="text-xs text-amber-900/60 mt-1.5">사용 가능한 닉네임이에요</p>
           )}
           {nicknameStatus === "duplicate" && (
             <p className="text-xs text-red-500 mt-1.5">이미 사용 중인 닉네임이에요</p>
@@ -146,24 +146,24 @@ export default function Signup() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">비밀번호</label>
+          <label className="block text-sm font-medium text-amber-950 mb-1.5">비밀번호</label>
           <input
             type="password"
             placeholder="6자 이상 입력해 주세요"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+            className="w-full border border-amber-900/15 rounded-xl px-4 py-2.5 text-sm bg-white text-amber-950 focus:outline-none focus:border-amber-950 transition"
           />
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-medium text-yellow-900 mb-1.5">비밀번호 확인</label>
+          <label className="block text-sm font-medium text-amber-950 mb-1.5">비밀번호 확인</label>
           <input
             type="password"
             placeholder="비밀번호를 다시 입력해 주세요"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border border-yellow-200 rounded-xl px-4 py-2.5 text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400 focus:bg-white transition"
+            className="w-full border border-amber-900/15 rounded-xl px-4 py-2.5 text-sm bg-white text-amber-950 focus:outline-none focus:border-amber-950 transition"
           />
         </div>
 
@@ -174,16 +174,16 @@ export default function Signup() {
         <button
           onClick={handleSignup}
           disabled={loading || nicknameStatus === "checking" || nicknameStatus === "duplicate"}
-          className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-medium py-3 rounded-xl text-sm transition disabled:opacity-50"
+          className="w-full bg-amber-950 hover:bg-amber-900 text-white font-semibold py-3 rounded-xl text-sm transition disabled:opacity-30"
         >
           {loading ? "가입 중..." : "가입하기"}
         </button>
 
-        <p className="text-center text-sm text-yellow-800 mt-4">
+        <p className="text-center text-sm text-amber-900/60 mt-4">
           이미 계정이 있으신가요?{" "}
           <span
             onClick={() => nav("/login")}
-            className="underline cursor-pointer text-yellow-700 font-medium"
+            className="underline cursor-pointer text-amber-950 font-semibold"
           >
             로그인
           </span>

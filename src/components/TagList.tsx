@@ -11,7 +11,7 @@ export default function TagList({ store, max = 99 }: { store: Store; max?: numbe
     <div className="flex flex-wrap gap-1.5">
       {items.map(({ t, kind }) => (
         <span key={kind + t}
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${kind === "cat" ? "bg-rose-50 text-rose-500" : "bg-amber-50 text-amber-700"}`}>
+          className={`rounded-md px-2 py-0.5 text-xs font-medium ${kind === "cat" ? "bg-amber-950 text-white" : "border border-amber-900/15 text-amber-900/70"}`}>
           {kind === "tag" ? `#${t}` : t}
         </span>
       ))}

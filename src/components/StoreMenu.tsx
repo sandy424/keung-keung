@@ -5,7 +5,7 @@ export default function StoreMenu({ menus = [] }: { menus?: Menu[] }) {
   const [zoom, setZoom] = useState<Menu | null>(null);
 
   if (menus.length === 0) {
-    return <p className="py-10 text-center text-gray-400">메뉴 준비 중이에요</p>;
+    return <p className="py-10 text-center text-sm text-amber-900/40">메뉴 준비 중이에요</p>;
   }
 
   return (
@@ -14,16 +14,16 @@ export default function StoreMenu({ menus = [] }: { menus?: Menu[] }) {
         {menus.map((m, i) => (
           <li key={`${m.name}-${i}`} className="flex items-center gap-4">
             {m.photo ? (
-              <button onClick={() => setZoom(m)} className="shrink-0 overflow-hidden rounded-2xl" aria-label={`${m.name} 사진 크게 보기`}>
+              <button onClick={() => setZoom(m)} className="shrink-0 overflow-hidden rounded-xl" aria-label={`${m.name} 사진 크게 보기`}>
                 <img src={m.photo} alt={m.name} loading="lazy" className="h-20 w-20 object-cover transition hover:scale-105" />
               </button>
             ) : (
-              <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-3xl" aria-hidden="true">🍰</span>
+              <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-3xl" aria-hidden="true">🍰</span>
             )}
             <div className="flex min-w-0 flex-1 items-baseline gap-3">
-              <span className="truncate text-lg font-semibold">{m.name}</span>
-              <span className="flex-1 border-b border-dotted border-gray-300" />
-              <span className="whitespace-nowrap text-gray-600">{m.price ? `${Number(m.price).toLocaleString()}원` : "가격 정보 없음"}</span>
+              <span className="truncate font-semibold text-amber-950">{m.name}</span>
+              <span className="flex-1 border-b border-dotted border-amber-900/20" />
+              <span className="whitespace-nowrap text-sm tabular-nums text-amber-900/70">{m.price ? `${Number(m.price).toLocaleString()}원` : "가격 정보 없음"}</span>
             </div>
           </li>
         ))}

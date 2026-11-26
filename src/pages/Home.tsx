@@ -100,12 +100,12 @@ function Home({ query, onClearQuery }: { query: string; onClearQuery: () => void
 
       {/* 검색 결과 안내 */}
       {query.trim() && (
-        <div className="absolute left-1/2 top-4 z-10 flex max-w-[calc(100%-7rem)] -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-white py-2 pl-4 pr-2 text-sm shadow-lg">
+        <div className="absolute left-1/2 top-4 z-10 flex max-w-[calc(100%-7rem)] -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-amber-900/10 bg-white py-2 pl-4 pr-2 text-sm text-amber-950 shadow-md">
           <span className="truncate">
-            ‘<b>{query}</b>’ {stores.length > 0 ? <>검색 결과 <b className="text-amber-600">{stores.length}곳</b></> : "검색 결과가 없어요"}
+            ‘<b>{query}</b>’ {stores.length > 0 ? <>검색 결과 <b>{stores.length}곳</b></> : "검색 결과가 없어요"}
           </span>
-          <button onClick={onClearQuery} className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-200">
-            해제 ✕
+          <button onClick={onClearQuery} className="shrink-0 rounded-full bg-amber-900/5 px-2.5 py-0.5 text-xs text-amber-900/60 hover:bg-amber-900/10">
+            해제
           </button>
         </div>
       )}
@@ -117,10 +117,10 @@ function Home({ query, onClearQuery }: { query: string; onClearQuery: () => void
       {/* 추천 가게 등록 버튼 */}
       <button
         onClick={() => setAddModal(true)}
-        className="absolute bottom-28 right-5 z-10 flex h-12 items-center gap-1.5 rounded-full bg-rose-400 px-4 font-semibold text-white shadow-lg transition hover:bg-rose-500 active:scale-95"
+        className="absolute bottom-28 right-5 z-10 flex h-12 items-center gap-1.5 rounded-full bg-amber-950 px-5 font-semibold text-white shadow-lg shadow-amber-950/20 transition hover:bg-amber-900 active:scale-95"
         aria-label="내가 추천하는 가게 등록"
       >
-        <span className="text-xl leading-none">+</span>
+        <span className="text-lg leading-none">＋</span>
         <span className="text-sm">가게 추천</span>
       </button>
 
