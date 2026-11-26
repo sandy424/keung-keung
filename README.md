@@ -26,6 +26,9 @@ React 19 · TypeScript · Vite · Tailwind CSS · Firebase (Auth, Firestore, Sto
 **API 키 노출**
 네이버 검색 API의 Secret 키를 브라우저에 두지 않도록, Vercel 서버리스 함수에서 대신 호출하게 했습니다.
 
+**전화번호·영업시간이 비어 있는 문제**
+네이버 장소 검색 API는 전화번호(`telephone`)를 빈 값으로 주고 영업시간은 제공하지 않습니다. Google Places는 네이버 지도와 함께 쓰는 것이 약관상 제한돼서, 전화번호는 카카오 로컬 API로 실시간 조회하고(정책상 저장하지 않음) 영업시간은 사용자가 직접 추가하거나 네이버 지도에서 확인하도록 했습니다.
+
 **이미지 업로드 용량**
 업로드 전에 브라우저에서 긴 변 800px의 WebP로 압축해 업로드 시간과 저장 용량을 줄였습니다.
 
@@ -36,4 +39,9 @@ npm install
 npm run dev
 ```
 
-장소 검색을 쓰려면 `.env.local`에 `NAVER_SEARCH_CLIENT_ID`, `NAVER_SEARCH_CLIENT_SECRET`을 넣고 `npx vercel dev`로 실행합니다.
+서버 함수(`api/`)를 쓰려면 `.env.local`에 아래 키를 넣고 `npx vercel dev`로 실행합니다.
+
+| 환경변수 | 용도 |
+|---|---|
+| `NAVER_SEARCH_CLIENT_ID`, `NAVER_SEARCH_CLIENT_SECRET` | 가게 추천 시 네이버 장소 검색 |
+| `KAKAO_REST_API_KEY` | 가게 상세의 전화번호 (카카오 로컬 API) |

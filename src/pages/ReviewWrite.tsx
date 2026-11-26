@@ -16,6 +16,7 @@ import { loadStores } from "../hooks/useStores";
 import type { Rating, RatingKey, Review } from "../types/store";
 import { EMPTY_RATING, RATING_ITEMS, reviewAvg, summarize } from "../utils/rating";
 import StarIcon from "../components/StarIcon";
+import BackButton from "../components/BackButton";
 
 const MAX_LENGTH = 500;
 const SCORE_LABEL = ["", "별로예요", "그저 그래요", "괜찮아요", "맛있어요", "최고예요!"];
@@ -96,11 +97,9 @@ export default function ReviewWrite() {
   };
 
   return (
-    <div className="mx-auto h-full w-full max-w-175 overflow-y-auto bg-white">
-      <div className="flex items-center gap-3 p-5">
-        <button onClick={() => nav(-1)} className="rounded-full border border-amber-900/10 p-2 hover:bg-amber-50" aria-label="뒤로가기">
-          <img src="/Last.svg" width={24} height={24} alt="" />
-        </button>
+    <div className="no-scrollbar mx-auto h-full w-full max-w-175 overflow-y-auto bg-white">
+      <div className="flex items-center gap-1 px-3 py-4">
+        <BackButton />
         <span className="text-sm font-semibold text-amber-900/50">후기 작성</span>
       </div>
 

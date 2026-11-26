@@ -10,6 +10,7 @@ import StoreReview from "../components/StoreReview";
 import HeartIcon from "../components/HeartIcon";
 import StarIcon from "../components/StarIcon";
 import TagList from "../components/TagList";
+import BackButton from "../components/BackButton";
 
 const TABS = ["정보", "메뉴", "리뷰"] as const;
 type Tab = (typeof TABS)[number];
@@ -59,62 +60,63 @@ export default function Detail() {
   const { avg, count } = summarize(reviews);
 
   return (
-    <div className="relative mx-auto h-full w-full max-w-175 overflow-y-auto bg-white pb-28">
-      <div className="flex items-center justify-between p-5">
-        <button onClick={() => nav(-1)} className="rounded-full border border-amber-900/10 p-2 hover:bg-amber-50" aria-label="뒤로가기">
-          <img src="/Last.svg" width={24} height={24} alt="" />
-        </button>
-      </div>
-
-      <div className="px-6 sm:px-12">
-        {/* 상단 - 가게 이름, 카테고리, 평균 별점, 후기 개수 */}
-        <TagList store={store} />
-        <div className="mt-3 flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold text-amber-950">{store.name}</h1>
-          <button type="button" onClick={toggle}
-            className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-sm font-medium transition active:scale-95 ${
-              saved ? "border-amber-950 bg-amber-950 text-white" : "border-amber-900/15 text-amber-950 hover:bg-amber-50"
-            }`}>
-            <HeartIcon filled={saved} size={18} />
-            {saved ? "저장됨" : "저장하기"}
-          </button>
-        </div>
-        <div className="mt-3 flex items-center gap-4 text-amber-950">
-          <span className="flex items-center gap-1 text-lg font-bold">
-            <StarIcon size={20} /> {formatScore(avg ?? store.avgRating)}
-          </span>
-          <span className="text-sm text-amber-900/50">후기 {count}개</span>
-          {store.recommender && <span className="text-sm text-amber-900/40">· {store.recommender}님의 추천</span>}
+    // 스크롤 영역 + 하단 고정 버튼으로 나눠서, 버튼이 항상 화면 맨 아래에 붙어 있게 함
+    <div className="mx-auto flex h-full w-full max-w-175 flex-col bg-white">
+      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-10">
+        <div className="px-3 py-4">
+          <BackButton />
         </div>
 
-        {/* 탭 */}
-        <div className="sticky top-0 z-10 mt-8 flex border-b border-amber-900/10 bg-white">
-          {TABS.map((t) => (
-            <button key={t} onClick={() => handleTab(t)}
-              className={`flex-1 border-b-2 py-3 text-sm font-semibold transition ${
-                tab === t ? "border-amber-950 text-amber-950" : "border-transparent text-amber-900/40"
+        <div className="px-6 sm:px-12">
+          {/* 상단 - 가게 이름, 카테고리, 평균 별점, 후기 개수 */}
+          <TagList store={store} />
+          <div className="mt-3 flex items-start justify-between gap-4">
+            <h1 className="text-2xl font-bold text-amber-950">{store.name}</h1>
+            <button type="button" onClick={toggle}
+              className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-sm font-medium transition active:scale-95 ${
+                saved ? "border-amber-950 bg-amber-950 text-white" : "border-amber-900/15 text-amber-950 hover:bg-amber-50"
               }`}>
-              {t}
+              <HeartIcon filled={saved} size={18} />
+              {saved ? "저장됨" : "저장하기"}
             </button>
-          ))}
-        </div>
+          </div>
+          <div className="mt-3 flex items-center gap-4 text-amber-950">
+            <span className="flex items-center gap-1 text-lg font-bold">
+              <StarIcon size={20} /> {formatScore(avg ?? store.avgRating)}
+            </span>
+            <span className="text-sm text-amber-900/50">후기 {count}개</span>
+            {store.recommender && <span className="text-sm text-amber-900/40">· {store.recommender}님의 추천</span>}
+          </div>
 
-        <section ref={sectionRefs.정보} className="scroll-mt-16 pt-8">
-          <h2 className="mb-4 text-lg font-bold text-amber-950">정보</h2>
-          <StoreDoc store={store} />
-        </section>
-        <section ref={sectionRefs.메뉴} className="scroll-mt-16 pt-14">
-          <h2 className="mb-6 text-lg font-bold text-amber-950">메뉴</h2>
-          <StoreMenu menus={store.menus} />
-        </section>
-        <section ref={sectionRefs.리뷰} className="scroll-mt-16 pt-14">
-          <h2 className="mb-2 text-lg font-bold text-amber-950">리뷰 <span className="ml-1 text-base font-semibold text-amber-900/40">{count}</span></h2>
-          <StoreReview reviews={reviews} />
-        </section>
+          {/* 탭 */}
+          <div className="sticky top-0 z-10 mt-8 flex border-b border-amber-900/10 bg-white">
+            {TABS.map((t) => (
+              <button key={t} onClick={() => handleTab(t)}
+                className={`flex-1 border-b-2 py-3 text-sm font-semibold transition ${
+                  tab === t ? "border-amber-950 text-amber-950" : "border-transparent text-amber-900/40"
+                }`}>
+                {t}
+              </button>
+            ))}
+          </div>
+
+          <section ref={sectionRefs.정보} className="scroll-mt-16 pt-8">
+            <h2 className="mb-4 text-lg font-bold text-amber-950">정보</h2>
+            <StoreDoc store={store} />
+          </section>
+          <section ref={sectionRefs.메뉴} className="scroll-mt-16 pt-14">
+            <h2 className="mb-6 text-lg font-bold text-amber-950">메뉴</h2>
+            <StoreMenu menus={store.menus} />
+          </section>
+          <section ref={sectionRefs.리뷰} className="scroll-mt-16 pt-14">
+            <h2 className="mb-2 text-lg font-bold text-amber-950">리뷰 <span className="ml-1 text-base font-semibold text-amber-900/40">{count}</span></h2>
+            <StoreReview reviews={reviews} />
+          </section>
+        </div>
       </div>
 
-      {/* 하단 - 후기 작성하기 */}
-      <div className="sticky bottom-0 mt-10 bg-gradient-to-t from-white via-white to-transparent px-6 pb-6 pt-6">
+      {/* 하단 고정 - 후기 작성하기 */}
+      <div className="shrink-0 border-t border-amber-900/10 bg-white px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:px-12">
         <button onClick={() => nav(`/shop/${store.id}/review`)}
           className="w-full rounded-xl bg-amber-950 py-4 font-semibold text-white transition hover:bg-amber-900 active:scale-[.98]">
           후기 작성하기
