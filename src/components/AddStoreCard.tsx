@@ -248,7 +248,7 @@ export default function AddStoreCard({ onClose, onAdded }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-amber-950/40 p-4" onClick={onClose}>
-      <div className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-2xl border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-950/10" onClick={(e) => e.stopPropagation()}>
+      <div className="no-scrollbar max-h-[88vh] w-full max-w-md overflow-y-auto rounded-2xl border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-950/10" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-lg font-bold text-amber-950">내가 아는 맛집 추천하기</h2>
         <p className="mb-5 mt-1 text-xs text-amber-900/50">
           추천한 가게는 지도에 바로 표시돼요 · 현재 {CURRENT_REGION.name} 지역만 가능해요

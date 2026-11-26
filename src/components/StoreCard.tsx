@@ -60,7 +60,7 @@ export default function StoreCard({ store, onClose }: Props) {
     // 지도 정가운데에 카드 표시, 바깥(배경) 클릭 시 닫기
     <div className="absolute inset-0 z-20 flex items-center justify-center bg-amber-950/10 p-4" onClick={onClose}>
       <div role="dialog" aria-label={`${store.name} 정보`} onClick={(e) => e.stopPropagation()}
-        className="max-h-full w-full max-w-[360px] animate-[cardPop_.3s_cubic-bezier(.2,.9,.3,1.2)] overflow-y-auto rounded-2xl border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-950/10">
+        className="no-scrollbar max-h-full w-full max-w-[360px] animate-[cardPop_.3s_cubic-bezier(.2,.9,.3,1.2)] overflow-y-auto rounded-2xl border border-amber-900/10 bg-white p-6 shadow-xl shadow-amber-950/10">
         <div className="flex items-center justify-between">
           <TagList store={store} max={5} />
           <button className="text-amber-900/40 hover:text-amber-950" onClick={onClose} aria-label="닫기">✕</button>

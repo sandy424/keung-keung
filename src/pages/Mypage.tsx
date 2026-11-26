@@ -78,7 +78,7 @@ export default function Mypage() {
 
   return (
     <div className="relative mx-auto h-full w-full max-w-175">
-      <div className="h-full overflow-y-auto px-5 pb-36 pt-10 sm:px-8">
+      <div className="no-scrollbar h-full overflow-y-auto px-5 pb-36 pt-10 sm:px-8">
         {loading ? null : !user ? (
           <div className="flex flex-col items-center pt-24 text-center">
             <img src="/dessert2.png" alt="" className="h-20 w-20 rounded-full object-cover" />
