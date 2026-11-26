@@ -17,10 +17,10 @@ type Props = {
 };
 
 const FIELD_STYLE: Record<MatchField, string> = {
-  이름: "bg-amber-100 text-amber-800",
-  태그: "bg-rose-100 text-rose-700",
-  메뉴: "bg-sky-100 text-sky-700",
-  소개: "bg-gray-100 text-gray-600",
+  이름: "bg-amber-950 text-white",
+  태그: "bg-amber-900/5 text-amber-900/70",
+  메뉴: "bg-amber-900/5 text-amber-900/70",
+  소개: "bg-amber-900/5 text-amber-900/50",
 };
 
 const SUGGESTIONS = ["휘낭시에", "케이크", "소금빵", "ㅌㄹㅌ"];
@@ -111,13 +111,13 @@ export default function Header({ inputValue, query, onInputChange, onSearch, onC
   const showDropdown = open;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-amber-100 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-amber-900/10 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
         {/* 로고 + 지역 */}
         <button onClick={() => { onClear(); nav("/"); }} className="flex shrink-0 items-center gap-2" aria-label="킁킁 홈">
           <img src="/Logo.svg" width={44} height={22} alt="" />
-          <span className="hidden items-center gap-0.5 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 sm:flex">
-            📍 {CURRENT_REGION.name}
+          <span className="hidden items-center gap-0.5 rounded-md border border-amber-900/10 px-2 py-0.5 text-xs font-semibold text-amber-900/70 sm:flex">
+            {CURRENT_REGION.name}
           </span>
         </button>
 
@@ -152,24 +152,24 @@ export default function Header({ inputValue, query, onInputChange, onSearch, onC
           {/* 검색 결과 드롭다운 */}
           {showDropdown && (
             <div id="search-results" role="listbox"
-              className="absolute inset-x-0 top-[calc(100%+8px)] overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-2xl shadow-amber-900/10">
+              className="absolute inset-x-0 top-[calc(100%+8px)] overflow-hidden rounded-2xl border border-amber-900/10 bg-white shadow-xl shadow-amber-950/10">
               {!inputValue.trim() ? (
                 <div className="p-4">
-                  <p className="text-xs font-semibold text-gray-400">이렇게 찾아보세요</p>
+                  <p className="text-xs font-semibold text-amber-900/40">이렇게 찾아보세요</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {SUGGESTIONS.map((s) => (
                       <button key={s} onClick={() => { onInputChange(s); setActive(-1); inputRef.current?.focus(); }}
-                        className="rounded-full bg-amber-50 px-3 py-1 text-sm text-amber-800 hover:bg-amber-100">
+                        className="rounded-lg border border-amber-900/10 px-3 py-1 text-sm text-amber-900/70 hover:bg-amber-50">
                         {s}
                       </button>
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-gray-400">초성 검색도 돼요 (ㅋㅇㅋ → 케이크)</p>
+                  <p className="mt-3 text-xs text-amber-900/40">초성 검색도 돼요 (ㅋㅇㅋ → 케이크)</p>
                 </div>
               ) : hits.length === 0 ? (
-                <p className="px-4 py-6 text-center text-sm text-gray-500">
+                <p className="px-4 py-6 text-center text-sm text-amber-900/60">
                   ‘{inputValue}’와 맞는 가게가 없어요.<br />
-                  <span className="text-xs text-gray-400">가게 이름, 태그, 메뉴로 다시 찾아보세요</span>
+                  <span className="text-xs text-amber-900/40">가게 이름, 태그, 메뉴로 다시 찾아보세요</span>
                 </p>
               ) : (
                 <>
@@ -179,17 +179,17 @@ export default function Header({ inputValue, query, onInputChange, onSearch, onC
                         <button onMouseEnter={() => setActive(i)} onClick={() => goShop(store.id)}
                           className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${active === i ? "bg-amber-50" : ""}`}>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-gray-900">
+                            <p className="truncate font-semibold text-amber-950">
                               <Highlight text={store.name} query={field === "이름" ? inputValue : ""} />
                             </p>
                             {field !== "이름" && (
-                              <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-gray-500">
+                              <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-amber-900/50">
                                 <span className={`shrink-0 rounded px-1.5 py-px font-medium ${FIELD_STYLE[field]}`}>{field}</span>
                                 <span className="truncate"><Highlight text={text} query={inputValue} /></span>
                               </p>
                             )}
                           </div>
-                          <span className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-gray-600">
+                          <span className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-amber-950">
                             <StarIcon size={12} /> {formatScore(store.avgRating)}
                           </span>
                         </button>
@@ -197,7 +197,7 @@ export default function Header({ inputValue, query, onInputChange, onSearch, onC
                     ))}
                   </ul>
                   <button onClick={() => submit()}
-                    className="flex w-full items-center justify-between border-t border-amber-50 bg-amber-50/50 px-4 py-2.5 text-sm font-medium text-amber-800 hover:bg-amber-50">
+                    className="flex w-full items-center justify-between border-t border-amber-900/10 bg-white px-4 py-2.5 text-sm font-medium text-amber-800 hover:bg-amber-50">
                     <span>지도에서 결과 모두 보기</span>
                     <span className="hidden text-xs text-amber-700/60 sm:inline">Enter ↵</span>
                   </button>

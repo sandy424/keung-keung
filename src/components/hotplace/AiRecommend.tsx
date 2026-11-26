@@ -8,12 +8,12 @@ import StarIcon from "../StarIcon";
 import { coverPhoto, lookOf } from "./look";
 
 const MOODS = [
-  { label: "☔ 비 오는 날", prompt: "비 오는 날 따뜻하게 쉬어가기 좋은 디저트 가게" },
-  { label: "💕 데이트", prompt: "분위기 좋은 데이트 디저트 카페" },
-  { label: "🎁 선물용", prompt: "포장해서 선물하기 좋은 디저트" },
-  { label: "📖 혼자 조용히", prompt: "혼자 조용히 작업하거나 책 읽기 좋은 디저트 카페" },
-  { label: "🍓 상큼한 게 당겨", prompt: "상큼하고 과일이 들어간 디저트가 먹고 싶어요" },
-  { label: "🔥 요즘 인기", prompt: "요즘 평이 제일 좋은 디저트 맛집" },
+  { label: "비 오는 날", prompt: "비 오는 날 따뜻하게 쉬어가기 좋은 디저트 가게" },
+  { label: "데이트", prompt: "분위기 좋은 데이트 디저트 카페" },
+  { label: "선물용", prompt: "포장해서 선물하기 좋은 디저트" },
+  { label: "혼자 조용히", prompt: "혼자 조용히 작업하거나 책 읽기 좋은 디저트 카페" },
+  { label: "상큼한 게 당겨", prompt: "상큼하고 과일이 들어간 디저트가 먹고 싶어요" },
+  { label: "요즘 인기", prompt: "요즘 평이 제일 좋은 디저트 맛집" },
 ];
 
 type Pick = { id: string; reason: string; menu: string };
@@ -97,16 +97,16 @@ export default function AiRecommend({ stores }: { stores: Store[] }) {
     : error || result?.summary || "오늘은 어떤 디저트가 땡겨요?";
 
   return (
-    <section className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-amber-900/5 sm:p-6">
-      <h2 className="text-lg font-bold text-amber-950">🍯 킁킁이의 추천</h2>
+    <section className="rounded-2xl border border-amber-900/10 bg-white p-5 sm:p-6">
+      <h2 className="text-lg font-bold text-amber-950">킁킁이의 추천</h2>
       <p className="mt-0.5 text-sm text-amber-900/50">기분을 알려주면 킁킁이가 딱 맞는 가게를 찾아줘요</p>
 
       {/* 캐릭터 + 말풍선 */}
       <div className="mt-4 flex items-end gap-3">
         <img src="/dessert1.png" alt="킁킁이" width={72} height={72}
-          className={`h-[72px] w-[72px] shrink-0 rounded-full object-cover shadow-md ring-4 ring-amber-100 ${loading ? "animate-bounce" : ""}`} />
+          className={`h-[72px] w-[72px] shrink-0 rounded-full object-cover ring-1 ring-amber-900/10 ${loading ? "animate-bounce" : ""}`} />
         <p className={`relative mb-3 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm font-medium ${
-          error ? "bg-rose-50 text-rose-600" : "bg-[#fff9d4] text-amber-950"
+          error ? "bg-rose-50 text-rose-600" : "bg-amber-50 text-amber-950"
         }`}>
           {bubble}
         </p>
@@ -116,8 +116,8 @@ export default function AiRecommend({ stores }: { stores: Store[] }) {
       <div className="mt-4 flex flex-wrap gap-2">
         {MOODS.map((m) => (
           <button key={m.label} onClick={() => ask(m.prompt)} disabled={loading}
-            className={`rounded-full border px-3 py-1.5 text-sm transition disabled:opacity-40 ${
-              prompt === m.prompt ? "border-rose-300 bg-rose-50 text-rose-600" : "border-amber-200 bg-white text-amber-900 hover:bg-amber-50"
+            className={`rounded-lg border px-3 py-1.5 text-sm transition disabled:opacity-40 ${
+              prompt === m.prompt ? "border-amber-950 bg-amber-950 text-white" : "border-amber-900/15 bg-white text-amber-900/70 hover:bg-amber-50"
             }`}>
             {m.label}
           </button>
@@ -127,10 +127,10 @@ export default function AiRecommend({ stores }: { stores: Store[] }) {
       <form className="mt-3 flex gap-2" onSubmit={(e) => { e.preventDefault(); ask(prompt); }}>
         <input value={prompt} onChange={(e) => setPrompt(e.target.value)} maxLength={200}
           placeholder="예: 광안리에서 바다 보면서 먹을 케이크"
-          className="min-w-0 flex-1 rounded-2xl border border-amber-200 bg-amber-50/40 px-4 py-3 text-sm outline-none placeholder:text-amber-900/35 focus:border-amber-400 focus:bg-white" />
+          className="min-w-0 flex-1 rounded-xl border border-amber-900/15 bg-white px-4 py-3 text-sm outline-none placeholder:text-amber-900/35 focus:border-amber-950" />
         <button type="submit" disabled={loading || !prompt.trim()}
-          className="shrink-0 rounded-2xl bg-rose-400 px-4 text-sm font-bold text-white transition hover:bg-rose-500 disabled:opacity-40">
-          찾아줘!
+          className="shrink-0 rounded-xl bg-amber-950 px-4 text-sm font-semibold text-white transition hover:bg-amber-900 disabled:opacity-30">
+          찾기
         </button>
       </form>
 
@@ -138,7 +138,7 @@ export default function AiRecommend({ stores }: { stores: Store[] }) {
       <div aria-live="polite">
         {loading && (
           <div className="mt-4 grid gap-2">
-            {[0, 1, 2].map((i) => <div key={i} className="h-[76px] animate-pulse rounded-2xl bg-amber-50" />)}
+            {[0, 1, 2].map((i) => <div key={i} className="h-[76px] animate-pulse rounded-xl bg-amber-50" />)}
           </div>
         )}
 
@@ -155,20 +155,20 @@ export default function AiRecommend({ stores }: { stores: Store[] }) {
               return (
                 <li key={p.id}>
                   <button onClick={() => nav(`/shop/${store.id}`)}
-                    className="flex w-full items-start gap-3 rounded-2xl border border-amber-100 p-3 text-left transition hover:border-amber-300 hover:bg-amber-50/50">
+                    className="flex w-full items-start gap-3 rounded-xl border border-amber-900/10 p-3 text-left transition hover:border-amber-900/25 hover:bg-amber-50/50">
                     <span className={`relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-3xl ${look.bg}`}>
                       {coverPhoto(store) ? <img src={coverPhoto(store)!} alt="" className="h-full w-full rounded-xl object-cover" /> : look.emoji[0]}
-                      <span className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-400 text-[11px] font-bold text-white">{i + 1}</span>
+                      <span className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-950 text-[11px] font-bold text-white">{i + 1}</span>
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="truncate font-bold text-gray-900">{store.name}</p>
-                        <span className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-gray-600">
+                        <p className="truncate font-semibold text-amber-950">{store.name}</p>
+                        <span className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-amber-950">
                           <StarIcon size={12} /> {formatScore(store.avgRating)}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-sm leading-snug text-gray-600">{p.reason}</p>
-                      {p.menu && <p className="mt-1 text-xs font-medium text-rose-500">👉 {p.menu}</p>}
+                      <p className="mt-0.5 text-sm leading-snug text-amber-900/70">{p.reason}</p>
+                      {p.menu && <p className="mt-1 text-xs font-medium text-amber-600">추천 메뉴 · {p.menu}</p>}
                     </div>
                   </button>
                 </li>
